@@ -67,6 +67,7 @@ def _handle_message(message: dict) -> None:
 
     if text:
         if _is_plain_command(text):
+            _LOG.info("Detected plain command. Deleting...")
             _delete_message(message)
     else:
         _LOG.debug("Skipping message: %s", json.dumps(message))
