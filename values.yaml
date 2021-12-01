@@ -1,0 +1,7 @@
+name: moderator
+image: "ghcr.io/preparingforexams/moderatorbot:${GITHUB_SHA}"
+telegram:
+  adminUserId: "${ADMIN_USER_ID}"
+  apiKey: "${TELEGRAM_TOKEN}"
+sentry:
+  dsn: "${SENTRY_DSN}"

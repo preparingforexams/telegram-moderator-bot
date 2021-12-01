@@ -1,0 +1,32 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}-update-handler
+  labels:
+    app: {{ .Values.name }}-update-handler
+spec:
+  revisionHistoryLimit: 1
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}-update-handler
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}-update-handler
+    spec:
+      containers:
+        - name: app
+          image: {{ .Values.image }}
+          resources:
+            limits:
+              cpu: 50m
+            requests:
+              cpu: 10m
+              memory: 32Mi
+          envFrom:
+            - secretRef:
+                name: {{ .Values.name }}-secrets
