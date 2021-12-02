@@ -1,0 +1,45 @@
+import logging
+import re
+from os import path
+from typing import Optional, Set
+
+from bot import telegram
+from bot.rule import Rule
+
+_LOG = logging.getLogger(__name__)
+
+
+class SlashRule(Rule):
+    @property
+    def name(self) -> str:
+        return "command_spam"
+
+    def __init__(self, config_dir: str):
+        self.config = self._load_config(config_dir)
+
+    @staticmethod
+    def _load_config(config_dir: str) -> Set[int]:
+        with open(path.join(config_dir, "slash.txt"), "r") as f:
+            lines = f.readlines()
+
+        return {int(line.strip()) for line in lines}
+
+    def __call__(self, chat_id: int, message: dict):
+        if not self._is_enabled(chat_id):
+            _LOG.debug("Not enabled in %d", chat_id)
+            return
+
+        text: Optional[str] = message.get("text")
+
+        if text:
+            if self._is_plain_command(text):
+                _LOG.info("Detected plain command. Deleting...")
+                telegram.delete_message(message)
+
+    def _is_enabled(self, chat_id: int) -> bool:
+        return chat_id in self.config
+
+    @staticmethod
+    def _is_plain_command(text: str) -> bool:
+        pattern = re.compile(r"/\w+")
+        return bool(pattern.fullmatch(text))

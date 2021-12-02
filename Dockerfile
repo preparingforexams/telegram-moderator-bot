@@ -6,7 +6,7 @@ COPY requirements.txt .
 
 RUN pip install -r requirements.txt --no-cache
 
-COPY bot.py .
+COPY bot .
 
 ARG build
 ENV BUILD_SHA=$build

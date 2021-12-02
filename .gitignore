@@ -8,4 +8,4 @@ build/
 # IntelliJ IDEA
 .idea/
 
-data/
+config/

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-config
+data:
+  slash.txt: |
+    -1001458632057
+
+  sky.yaml: |
+    enabledChats: [-1001397708243]
+    actions:
+      - delete
+      - reply

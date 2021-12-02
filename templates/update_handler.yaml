@@ -18,6 +18,10 @@ spec:
       labels:
         app: {{ .Values.name }}-update-handler
     spec:
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Values.name }}-config
       containers:
         - name: app
           image: {{ .Values.image }}
@@ -27,6 +31,12 @@ spec:
             requests:
               cpu: 10m
               memory: 32Mi
+          volumeMounts:
+            - mountPath: /config
+              name: config
+          env:
+            - name: CONFIG_DIR
+              value: /config
           envFrom:
             - secretRef:
                 name: {{ .Values.name }}-secrets
