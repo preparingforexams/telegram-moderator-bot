@@ -27,10 +27,10 @@ spec:
           image: {{ .Values.image }}
           resources:
             limits:
-              cpu: 50m
+              cpu: 200m
             requests:
-              cpu: 10m
-              memory: 32Mi
+              cpu: 40m
+              memory: 64Mi
           volumeMounts:
             - mountPath: /config
               name: config
