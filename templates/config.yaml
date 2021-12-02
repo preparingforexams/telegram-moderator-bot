@@ -4,10 +4,13 @@ metadata:
   name: {{ .Values.name }}-config
 data:
   slash.txt: |
+    133399998
     -1001458632057
 
   sky.yaml: |
-    enabledChats: [-1001397708243]
+    enabledChats:
+      - 133399998
+      - -1001397708243
     actions:
-      - delete
       - reply
+      - insight

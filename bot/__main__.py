@@ -6,8 +6,11 @@ from typing import List
 import sentry_sdk
 
 from bot import telegram
-from bot.rule import Rule
-from bot.rules.slash import SlashRule
+from bot.rule import (
+    Rule,
+    SkyRule,
+    SlashRule,
+)
 
 _ADMIN_USER_ID = os.getenv("ADMIN_USER_ID")
 _CONFIG_DIRECTORY = os.getenv("CONFIG_DIR")
@@ -37,6 +40,7 @@ def _handle_updates(rules: List[Rule]) -> None:
 
 def _init_rules(config_dir: str) -> List[Rule]:
     return [
+        SkyRule(config_dir),
         SlashRule(config_dir),
     ]
 
