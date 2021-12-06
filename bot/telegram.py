@@ -122,3 +122,18 @@ def send_image(
         },
         timeout=10,
     ))
+
+
+def forward_message(
+    to_chat_id: int,
+    message: dict,
+) -> dict:
+    return _get_actual_body(requests.post(
+        _build_url("forwardMessage"),
+        json={
+            "chat_id": to_chat_id,
+            "from_chat_id": message["chat"]["id"],
+            "message_id": message["message_id"],
+        },
+        timeout=10,
+    ))

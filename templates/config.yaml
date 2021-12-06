@@ -3,6 +3,12 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.name }}-config
 data:
+  dice.yaml: |
+    forwardTo: -1001587782443
+    allowedEmojis:
+      -1001725586482:
+        - 🎰
+
   slash.txt: |
     133399998
     -1001458632057

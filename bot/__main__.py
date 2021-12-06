@@ -9,7 +9,7 @@ from bot import telegram
 from bot.rule import (
     Rule,
     SkyRule,
-    SlashRule,
+    SlashRule, DiceRule,
 )
 
 _ADMIN_USER_ID = os.getenv("ADMIN_USER_ID")
@@ -40,6 +40,7 @@ def _handle_updates(rules: List[Rule]) -> None:
 
 def _init_rules(config_dir: str) -> List[Rule]:
     return [
+        DiceRule(config_dir),
         SkyRule(config_dir),
         SlashRule(config_dir),
     ]
