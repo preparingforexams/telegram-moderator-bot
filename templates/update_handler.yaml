@@ -26,10 +26,8 @@ spec:
         - name: app
           image: {{ .Values.image }}
           resources:
-            limits:
-              cpu: 200m
             requests:
-              cpu: 40m
+              cpu: 50m
               memory: 64Mi
           volumeMounts:
             - mountPath: /config
