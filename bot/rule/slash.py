@@ -19,7 +19,13 @@ class SlashRule(Rule):
 
     @staticmethod
     def _load_config(config_dir: str) -> Set[int]:
-        with open(path.join(config_dir, "slash.txt"), "r") as f:
+        file_path = path.join(config_dir, "slash.txt")
+
+        if not path.isfile(file_path):
+            _LOG.warning("No config found")
+            return set()
+
+        with open(file_path, "r") as f:
             lines = f.readlines()
 
         return {int(line.strip()) for line in lines}

@@ -82,7 +82,7 @@ def main():
     if not _CONFIG_DIRECTORY:
         _LOG.warning("CONFIG_DIR is not set")
 
-    rules = _init_rules(_CONFIG_DIRECTORY or "./config")
+    rules = _init_rules(_CONFIG_DIRECTORY or "config")
     _handle_updates(rules)
 
 

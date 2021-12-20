@@ -96,7 +96,13 @@ class SkyRule(Rule):
 
     @staticmethod
     def _load_config(config_dir: str) -> Config:
-        with open(path.join(config_dir, "sky.yaml"), "r") as f:
+        file_path = path.join(config_dir, "sky.yaml")
+
+        if not path.isfile(file_path):
+            _LOG.warning("No config found")
+            return Config(enabled_chats=set(), actions=[])
+
+        with open(file_path, "r") as f:
             raw = yaml.load(f, yaml.Loader)
 
         return Config(

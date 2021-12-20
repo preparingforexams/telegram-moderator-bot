@@ -27,7 +27,12 @@ class DiceRule(Rule):
 
     @staticmethod
     def _load_config(config_dir: str) -> Config:
-        with open(path.join(config_dir, "dice.yaml"), "r") as f:
+        file_path = path.join(config_dir, "dice.yaml")
+        if not path.isfile(file_path):
+            _LOG.warning("No config found")
+            return Config(forward_to=None, allowed_emojis={})
+
+        with open(file_path, "r") as f:
             raw: dict = yaml.load(f, yaml.Loader)
 
         return Config(
