@@ -16,6 +16,5 @@ data:
   sky.yaml: |
     enabledChats:
       - 133399998
-      - -1001397708243
     actions:
       - insight
