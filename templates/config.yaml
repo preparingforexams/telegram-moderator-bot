@@ -18,3 +18,10 @@ data:
       - 133399998
     actions:
       - insight
+
+  darts.yaml: |
+    133399998:
+      emojis:
+        - 🎯
+      cooldown:
+        seconds: 5

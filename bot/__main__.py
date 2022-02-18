@@ -5,12 +5,8 @@ from typing import List
 
 import sentry_sdk
 
+from bot import rule
 from bot import telegram
-from bot.rule import (
-    Rule,
-    SkyRule,
-    SlashRule, DiceRule,
-)
 
 _ADMIN_USER_ID = os.getenv("ADMIN_USER_ID")
 _CONFIG_DIRECTORY = os.getenv("CONFIG_DIR")
@@ -18,7 +14,7 @@ _CONFIG_DIRECTORY = os.getenv("CONFIG_DIR")
 _LOG = logging.getLogger("bot")
 
 
-def _handle_updates(rules: List[Rule]) -> None:
+def _handle_updates(rules: List[rule.Rule]) -> None:
     def _on_update(update: dict):
         message = update.get("message")
 
@@ -38,11 +34,12 @@ def _handle_updates(rules: List[Rule]) -> None:
     telegram.handle_updates(_on_update)
 
 
-def _init_rules(config_dir: str) -> List[Rule]:
+def _init_rules(config_dir: str) -> List[rule.Rule]:
     return [
-        DiceRule(config_dir),
-        SkyRule(config_dir),
-        SlashRule(config_dir),
+        rule.DartsRule(config_dir),
+        rule.DiceRule(config_dir),
+        rule.SkyRule(config_dir),
+        rule.SlashRule(config_dir),
     ]
 
 
