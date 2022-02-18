@@ -27,8 +27,9 @@ class _ChatConfig:
             return time_diff > cooldown
         else:
             berlin = ZoneInfo('Europe/Berlin')
-            local_last = berlin.fromutc(last.replace(tzinfo=timezone.utc))
-            local_now = berlin.fromutc(now.replace(tzinfo=timezone.utc))
+            local_last = last.astimezone(berlin)
+            local_now = now.astimezone(berlin)
+
             return local_last.day != local_now.day
 
     @classmethod
@@ -109,7 +110,7 @@ class DartsRule(Rule):
         username = user['first_name']
         user_id = user['id']
 
-        message_time = datetime.fromtimestamp(message['date'])
+        message_time = datetime.fromtimestamp(message['date']).replace(tzinfo=timezone.utc)
         last_message = self._last_dart.get(user_id)
         self._last_dart[user_id] = message_time
 
