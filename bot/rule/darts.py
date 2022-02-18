@@ -110,7 +110,7 @@ class DartsRule(Rule):
         username = user['first_name']
         user_id = user['id']
 
-        message_time = datetime.fromtimestamp(message['date']).replace(tzinfo=timezone.utc)
+        message_time = datetime.fromtimestamp(message['date'], tz=timezone.utc)
         last_message = self._last_dart.get(user_id)
         self._last_dart[user_id] = message_time
 
