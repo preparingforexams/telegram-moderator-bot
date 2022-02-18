@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from os import path
 from typing import Dict, List, Optional
 from zoneinfo import ZoneInfo
@@ -27,8 +27,8 @@ class _ChatConfig:
             return time_diff > cooldown
         else:
             berlin = ZoneInfo('Europe/Berlin')
-            local_last = berlin.fromutc(last)
-            local_now = berlin.fromutc(now)
+            local_last = berlin.fromutc(last.replace(tzinfo=timezone.utc))
+            local_now = berlin.fromutc(now.replace(tzinfo=timezone.utc))
             return local_last.day != local_now.day
 
     @classmethod
