@@ -4,7 +4,8 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from os import path
-from typing import Dict, List
+from typing import Dict, List, Optional
+from zoneinfo import ZoneInfo
 
 import yaml
 
@@ -17,21 +18,35 @@ _LOG = logging.getLogger(__name__)
 @dataclass
 class _ChatConfig:
     emojis: List[str]
-    cooldown: timedelta
+    cooldown: Optional[timedelta]
+
+    def is_cooled_down(self, last: datetime, now: datetime) -> bool:
+        cooldown = self.cooldown
+        if cooldown is not None:
+            time_diff = abs(now - last)
+            return time_diff > cooldown
+        else:
+            berlin = ZoneInfo('Europe/Berlin')
+            local_last = berlin.fromutc(last)
+            local_now = berlin.fromutc(now)
+            return local_last.day != local_now.day
 
     @classmethod
     def from_dict(cls, config_dict: dict) -> _ChatConfig:
+        emojis = config_dict.get('emojis', [])
         cooldown_dict = config_dict.get('cooldown', None)
+        if cooldown_dict is None:
+            return _ChatConfig(emojis, None)
+
         if not cooldown_dict:
             raise ValueError('Not cooldown specified')
+
         cooldown = timedelta(
             days=cooldown_dict.get('days', 0),
             hours=cooldown_dict.get('hours', 0),
             minutes=cooldown_dict.get('minutes', 0),
             seconds=cooldown_dict.get('seconds', 0),
         )
-
-        emojis = config_dict.get('emojis', [])
 
         return _ChatConfig(
             emojis=emojis,
@@ -68,7 +83,7 @@ class DartsRule(Rule):
             _LOG.warning("No config found")
             return _Config({})
 
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             config_dict = yaml.load(f, yaml.Loader)
             if not config_dict:
                 _LOG.warning("Config is empty")
@@ -102,8 +117,7 @@ class DartsRule(Rule):
             _LOG.debug("No known last message from user %s", username)
             return
 
-        time_diff = abs(message_time - last_message)
-        if time_diff > config.cooldown:
+        if config.is_cooled_down(last=last_message, now=message_time):
             _LOG.debug("Cooldown expired")
             return
 
