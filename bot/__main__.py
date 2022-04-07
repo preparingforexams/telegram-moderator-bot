@@ -38,6 +38,7 @@ def _init_rules(config_dir: str) -> List[rule.Rule]:
     return [
         rule.DartsRule(config_dir),
         rule.DiceRule(config_dir),
+        rule.NhoRule(config_dir),
         rule.SkyRule(config_dir),
         rule.SlashRule(config_dir),
     ]
