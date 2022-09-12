@@ -5,4 +5,4 @@ metadata:
 data:
   GOOGLE_CLOUD_PROJECT: prep-telegram-bots
   GOOGLE_APPLICATION_CREDENTIALS: /gcp/sa.json
-  GOOGLE_PUBSUB_HOROSCOPE_SUBSCRIPTION: moderator-horoscopes
+  GOOGLE_PUBSUB_SUBSCRIPTION: moderator-horoscopes

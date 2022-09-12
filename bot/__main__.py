@@ -7,6 +7,9 @@ import sentry_sdk
 
 from bot import rule
 from bot import telegram
+from bot.event import rules as event_rule
+from bot.event.rule import EventRule
+from bot.event.subscriber import EventSubscriber
 
 _ADMIN_USER_ID = os.getenv("ADMIN_USER_ID")
 _CONFIG_DIRECTORY = os.getenv("CONFIG_DIR")
@@ -80,8 +83,25 @@ def main():
     if not _CONFIG_DIRECTORY:
         _LOG.warning("CONFIG_DIR is not set")
 
-    rules = _init_rules(_CONFIG_DIRECTORY or "config")
-    _handle_updates(rules)
+    args = sys.argv
+    if len(args) > 1:
+        arg = args[1]
+
+        config_dir = _CONFIG_DIRECTORY or "config"
+        handler: EventRule
+        if arg == "--subscribe-horoscopes":
+            handler = event_rule.IdolRule(config_dir)
+        else:
+            _LOG.error("Invalid arguments (%s)", args)
+            sys.exit(1)
+
+        subscriber = EventSubscriber(
+            rule=handler,
+        )
+        subscriber.subscribe()
+    else:
+        rules = _init_rules(_CONFIG_DIRECTORY or "config")
+        _handle_updates(rules)
 
 
 if __name__ == '__main__':

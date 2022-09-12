@@ -1,35 +1,28 @@
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ .Values.name }}
-spec:
-  clusterIP: None
----
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: {{ .Values.name }}-update-handler
-  labels:
-    app: {{ .Values.name }}-update-handler
+  name: {{ .Values.name }}-horoscope-sub
 spec:
-  replicas: 1
-  serviceName: {{ .Values.name }}
   selector:
     matchLabels:
-      app: {{ .Values.name }}-update-handler
+      app: {{ .Values.name }}-horoscope-sub
   template:
     metadata:
       labels:
-        app: {{ .Values.name }}-update-handler
+        app: {{ .Values.name }}-horoscope-sub
     spec:
       volumes:
         - name: config
           configMap:
             name: {{ .Values.name }}-config
+        - name: gcp-secrets
+          secret:
+            secretName: {{ .Values.name }}-gcp-secrets
       containers:
         - name: app
           image: {{ .Values.image }}
+          args:
+            - --subscribe-horoscopes
           resources:
             requests:
               cpu: 50m
@@ -37,9 +30,15 @@ spec:
           volumeMounts:
             - mountPath: /config
               name: config
+            - mountPath: /gcp/sa.json
+              name: gcp-secrets
+              subPath: GSA_JSON
+              readOnly: true
           env:
             - name: CONFIG_DIR
               value: /config
           envFrom:
+            - configMapRef:
+                name: {{ .Values.name }}-gcp
             - secretRef:
                 name: {{ .Values.name }}-secrets
