@@ -1,15 +1,20 @@
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}
+spec:
+  clusterIP: None
+---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ .Values.name }}-update-handler
   labels:
     app: {{ .Values.name }}-update-handler
 spec:
-  revisionHistoryLimit: 1
   replicas: 1
-  strategy:
-    type: Recreate
+  serviceName: {{ .Values.name }}
   selector:
     matchLabels:
       app: {{ .Values.name }}-update-handler
