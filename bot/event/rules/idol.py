@@ -34,6 +34,9 @@ class IdolRule(EventRule):
 
     def __call__(self, event: dict) -> bool:
         data = HoroscopeEvent.deserialize(event)
+
+        _LOG.debug("Looking at horoscope %s", data.horoscope)
+
         if "Idol" not in data.horoscope:
             _LOG.debug("No idols found, skipping")
             return True
