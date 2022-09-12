@@ -46,3 +46,4 @@ class IdolRule(EventRule):
             text="Balek?!",
             reply_to_message_id=data.message_id,
         )
+        return True
