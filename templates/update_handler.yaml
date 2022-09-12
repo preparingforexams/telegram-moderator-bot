@@ -22,6 +22,9 @@ spec:
         - name: config
           configMap:
             name: {{ .Values.name }}-config
+        - name: gcp-secrets
+          secret:
+            secretName: {{ .Values.name }}-gcp-secrets
       containers:
         - name: app
           image: {{ .Values.image }}
@@ -32,9 +35,15 @@ spec:
           volumeMounts:
             - mountPath: /config
               name: config
+            - mountPath: /gcp/sa.json
+              name: gcp-secrets
+              subPath: GSA_JSON
+              readOnly: true
           env:
             - name: CONFIG_DIR
               value: /config
           envFrom:
+            - configMapRef:
+                name: {{ .Values.name }}-gcp
             - secretRef:
                 name: {{ .Values.name }}-secrets

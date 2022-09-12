@@ -27,6 +27,7 @@ jobs:
         run: "envsubst < values.yaml > values_sub.yaml && mv values_sub.yaml values.yaml"
         env:
           ADMIN_USER_ID: ${{ secrets.ADMIN_USER_ID }}
+          GSA_JSON: ${{ secrets.GSA_JSON }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
       - uses: WyriHaximus/github-action-helm3@v2
