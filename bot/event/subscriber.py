@@ -45,19 +45,19 @@ class EventSubscriber:
                 decoded = json.loads(message.data.decode("utf-8"))
             except Exception as e:
                 _LOG.error("Could not decode message", exc_info=e)
-                message.ack()
+                message.ack_with_response().result()
                 return
 
             try:
                 result = self._rule(decoded)
             except Exception as e:
                 _LOG.error("Rule failed to handle message, requeuing", exc_info=e)
-                message.nack()
+                message.nack_with_response().result()
             else:
                 if result:
-                    message.ack()
+                    message.ack_with_response().result()
                 else:
                     _LOG.warning("Rule result indicated failure, requeuing")
-                    message.nack()
+                    message.nack_with_response().result()
 
         self.client.subscribe(self._config.subscription, _handle_message).result()
