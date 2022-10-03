@@ -1,3 +1,4 @@
+import functools
 import json
 import logging
 import os
@@ -10,6 +11,15 @@ from typing.io import IO
 _LOG = logging.getLogger(__name__)
 
 _API_KEY = os.getenv("TELEGRAM_API_KEY")
+
+
+def _build_session() -> requests.Session:
+    session = requests.Session()
+    session.request = functools.partial(session.request, timeout=20)
+    return session
+
+
+_session = _build_session()
 
 
 def is_configured() -> bool:
@@ -35,7 +45,7 @@ def _request_updates(last_update_id: Optional[int]) -> List[dict]:
             "offset": last_update_id + 1,
             "timeout": 10,
         }
-    return _get_actual_body(requests.post(
+    return _get_actual_body(_session.post(
         _build_url("getUpdates"),
         json=body,
         timeout=15,
@@ -55,7 +65,7 @@ def handle_updates(handler: Callable[[dict], None]):
 
 
 def send_message(chat_id: int, text: str, reply_to_message_id: Optional[int] = None) -> dict:
-    return _get_actual_body(requests.post(
+    return _get_actual_body(_session.post(
         _build_url("sendMessage"),
         json={
             "text": text,
@@ -63,7 +73,6 @@ def send_message(chat_id: int, text: str, reply_to_message_id: Optional[int] = N
             "reply_to_message_id": reply_to_message_id,
             "allow_sending_without_reply": True,
         },
-        timeout=10,
     ))
 
 
@@ -72,13 +81,12 @@ def delete_message(message: dict) -> bool:
     message_id = message["message_id"]
 
     try:
-        _get_actual_body(requests.post(
+        _get_actual_body(_session.post(
             _build_url("deleteMessage"),
             json={
                 "chat_id": chat_id,
                 "message_id": message_id,
             },
-            timeout=10,
         ))
     except (ValueError, HTTPError) as e:
         _LOG.error("Could not delete message", exc_info=e)
@@ -88,29 +96,28 @@ def delete_message(message: dict) -> bool:
 
 
 def download_file(file_id: str, file: IO):
-    body = _get_actual_body(requests.post(
+    body = _get_actual_body(_session.post(
         _build_url("getFile"),
         json={
             "file_id": file_id,
         },
-        timeout=10,
     ))
 
     file_path = body["file_path"]
     url = f"https://api.telegram.org/file/bot{_API_KEY}/{file_path}"
-    response = requests.get(url)
+    response = _session.get(url)
     response.raise_for_status()
     for chunk in response.iter_content(chunk_size=8192):
         file.write(chunk)
 
 
 def send_image(
-    chat_id: int,
-    image_file: BinaryIO,
-    caption: Optional[str] = None,
-    reply_to_message_id: Optional[int] = None,
+        chat_id: int,
+        image_file: BinaryIO,
+        caption: Optional[str] = None,
+        reply_to_message_id: Optional[int] = None,
 ) -> dict:
-    return _get_actual_body(requests.post(
+    return _get_actual_body(_session.post(
         _build_url("sendPhoto"),
         files={
             "photo": image_file,
@@ -120,20 +127,18 @@ def send_image(
             "chat_id": chat_id,
             "reply_to_message_id": reply_to_message_id,
         },
-        timeout=10,
     ))
 
 
 def forward_message(
-    to_chat_id: int,
-    message: dict,
+        to_chat_id: int,
+        message: dict,
 ) -> dict:
-    return _get_actual_body(requests.post(
+    return _get_actual_body(_session.post(
         _build_url("forwardMessage"),
         json={
             "chat_id": to_chat_id,
             "from_chat_id": message["chat"]["id"],
             "message_id": message["message_id"],
         },
-        timeout=10,
     ))
