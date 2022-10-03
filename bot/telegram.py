@@ -45,11 +45,17 @@ def _request_updates(last_update_id: Optional[int]) -> List[dict]:
             "offset": last_update_id + 1,
             "timeout": 10,
         }
-    return _get_actual_body(_session.post(
-        _build_url("getUpdates"),
-        json=body,
-        timeout=15,
-    ))
+    try:
+        response = _session.post(
+            _build_url("getUpdates"),
+            json=body,
+            timeout=15,
+        )
+    except (ConnectionError | requests.RequestException) as e:
+        _LOG.warning("Got exception during update request", exc_info=e)
+        return []
+
+    return _get_actual_body(response)
 
 
 def handle_updates(handler: Callable[[dict], None]):
