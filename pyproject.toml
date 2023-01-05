@@ -20,6 +20,7 @@ sentry-sdk = "^1.12.1"
 black = "^22.3.0"
 mypy = "0.991"
 pytest = "^7.1.2"
+types-pyyaml = "^6.0.12.2"
 types-requests = "2.28.11.7"
 
 [build-system]
@@ -28,4 +29,12 @@ build-backend = "poetry.core.masonry.api"
 
 [[tool.mypy.overrides]]
 module = "google.cloud.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "scipy"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "cv2"
 ignore_missing_imports = true

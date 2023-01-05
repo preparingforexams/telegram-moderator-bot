@@ -66,7 +66,7 @@ def _setup_sentry():
     )
 
 
-def main():
+def main() -> None:
     _setup_logging()
     _setup_sentry()
 
