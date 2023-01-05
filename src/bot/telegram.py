@@ -2,11 +2,11 @@ import functools
 import json
 import logging
 import os
+from typing import IO
 from typing import Optional, Union, List, Callable, BinaryIO
 
 import requests
 from requests.exceptions import HTTPError
-from typing.io import IO
 
 _LOG = logging.getLogger(__name__)
 
@@ -70,7 +70,8 @@ def handle_updates(handler: Callable[[dict], None]):
             _LOG.error("Could not handle update", exc_info=e)
 
 
-def send_message(chat_id: int, text: str, reply_to_message_id: Optional[int] = None) -> dict:
+def send_message(chat_id: int, text: str,
+    reply_to_message_id: Optional[int] = None) -> dict:
     return _get_actual_body(_session.post(
         _build_url("sendMessage"),
         json={
@@ -101,7 +102,7 @@ def delete_message(message: dict) -> bool:
         return True
 
 
-def download_file(file_id: str, file: IO):
+def download_file(file_id: str, file: IO[bytes]):
     body = _get_actual_body(_session.post(
         _build_url("getFile"),
         json={
@@ -118,10 +119,10 @@ def download_file(file_id: str, file: IO):
 
 
 def send_image(
-        chat_id: int,
-        image_file: BinaryIO,
-        caption: Optional[str] = None,
-        reply_to_message_id: Optional[int] = None,
+    chat_id: int,
+    image_file: IO[bytes],
+    caption: Optional[str] = None,
+    reply_to_message_id: Optional[int] = None,
 ) -> dict:
     return _get_actual_body(_session.post(
         _build_url("sendPhoto"),
@@ -137,8 +138,8 @@ def send_image(
 
 
 def forward_message(
-        to_chat_id: int,
-        message: dict,
+    to_chat_id: int,
+    message: dict,
 ) -> dict:
     return _get_actual_body(_session.post(
         _build_url("forwardMessage"),

@@ -11,11 +11,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxext6 \
     && apt-get clean
 
-COPY requirements.txt .
+RUN pip install poetry==1.3.1 --no-cache
+RUN poetry config virtualenvs.create false
 
-RUN pip install -r requirements.txt --no-cache
+COPY [ "poetry.toml", "poetry.lock", "pyproject.toml", "./" ]
 
-COPY bot bot
+# We don't want the tests
+COPY src/bot ./src/bot
+
+RUN poetry install --no-dev
 
 ARG build
 ENV BUILD_SHA=$build
