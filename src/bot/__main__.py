@@ -25,7 +25,7 @@ def _handle_updates(rules: List[rule.Rule]) -> None:
             _LOG.debug("Skipping non-message update")
             return
 
-        chat_id = message['chat']['id']
+        chat_id = message["chat"]["id"]
 
         for rule in rules:
             _LOG.debug("Passing message to rule %s", rule.name)
@@ -62,13 +62,7 @@ def _setup_sentry():
 
     sentry_sdk.init(
         dsn,
-
         release=version,
-
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for performance monitoring.
-        # We recommend adjusting this value in production.
-        traces_sample_rate=1.0
     )
 
 
@@ -104,5 +98,5 @@ def main():
         _handle_updates(rules)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

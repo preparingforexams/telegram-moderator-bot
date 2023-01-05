@@ -22,14 +22,13 @@ def make_mask(b, image):
 
 
 def display_cv2_image(image):
-    return cv2.imencode('.png', image)[1].tostring()
+    return cv2.imencode(".png", image)[1].tostring()
 
 
 def color_to_gradient(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     return np.hypot(
-        cv2.Sobel(gray, cv2.CV_64F, 1, 0),
-        cv2.Sobel(gray, cv2.CV_64F, 0, 1)
+        cv2.Sobel(gray, cv2.CV_64F, 1, 0), cv2.Sobel(gray, cv2.CV_64F, 0, 1)
     )
 
 
@@ -37,33 +36,29 @@ def energy(b_tmp, image):
     sky_mask = make_mask(b_tmp, image)
 
     ground = np.ma.array(
-        image,
-        mask=cv2.cvtColor(cv2.bitwise_not(sky_mask), cv2.COLOR_GRAY2BGR)
+        image, mask=cv2.cvtColor(cv2.bitwise_not(sky_mask), cv2.COLOR_GRAY2BGR)
     ).compressed()
     sky = np.ma.array(
-        image,
-        mask=cv2.cvtColor(sky_mask, cv2.COLOR_GRAY2BGR)
+        image, mask=cv2.cvtColor(sky_mask, cv2.COLOR_GRAY2BGR)
     ).compressed()
     ground.shape = (ground.size // 3, 3)
     sky.shape = (sky.size // 3, 3)
 
     sigma_g, mu_g = cv2.calcCovarMatrix(
-        ground,
-        None,
-        cv2.COVAR_NORMAL | cv2.COVAR_ROWS | cv2.COVAR_SCALE
+        ground, None, cv2.COVAR_NORMAL | cv2.COVAR_ROWS | cv2.COVAR_SCALE
     )
     sigma_s, mu_s = cv2.calcCovarMatrix(
-        sky,
-        None,
-        cv2.COVAR_NORMAL | cv2.COVAR_ROWS | cv2.COVAR_SCALE
+        sky, None, cv2.COVAR_NORMAL | cv2.COVAR_ROWS | cv2.COVAR_SCALE
     )
 
     y = 2
 
     return 1 / (
-        (y * np.linalg.det(sigma_s) + np.linalg.det(sigma_g)) +
-        (y * np.linalg.det(np.linalg.eig(sigma_s)[1]) +
-         np.linalg.det(np.linalg.eig(sigma_g)[1]))
+        (y * np.linalg.det(sigma_s) + np.linalg.det(sigma_g))
+        + (
+            y * np.linalg.det(np.linalg.eig(sigma_s)[1])
+            + np.linalg.det(np.linalg.eig(sigma_g)[1])
+        )
     )
 
 
@@ -116,12 +111,10 @@ def refine_sky(bopt, image):
     sky_mask = make_mask(bopt, image)
 
     ground = np.ma.array(
-        image,
-        mask=cv2.cvtColor(cv2.bitwise_not(sky_mask), cv2.COLOR_GRAY2BGR)
+        image, mask=cv2.cvtColor(cv2.bitwise_not(sky_mask), cv2.COLOR_GRAY2BGR)
     ).compressed()
     sky = np.ma.array(
-        image,
-        mask=cv2.cvtColor(sky_mask, cv2.COLOR_GRAY2BGR)
+        image, mask=cv2.cvtColor(sky_mask, cv2.COLOR_GRAY2BGR)
     ).compressed()
     ground.shape = (ground.size // 3, 3)
     sky.shape = (sky.size // 3, 3)
@@ -132,27 +125,25 @@ def refine_sky(bopt, image):
         None,
         (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0),
         10,
-        cv2.KMEANS_RANDOM_CENTERS
+        cv2.KMEANS_RANDOM_CENTERS,
     )
 
     sigma_s1, mu_s1 = cv2.calcCovarMatrix(
         sky[label.ravel() == 0],
         None,
-        cv2.COVAR_NORMAL | cv2.COVAR_ROWS | cv2.COVAR_SCALE
+        cv2.COVAR_NORMAL | cv2.COVAR_ROWS | cv2.COVAR_SCALE,
     )
     ic_s1 = cv2.invert(sigma_s1, cv2.DECOMP_SVD)[1]
 
     sigma_s2, mu_s2 = cv2.calcCovarMatrix(
         sky[label.ravel() == 1],
         None,
-        cv2.COVAR_NORMAL | cv2.COVAR_ROWS | cv2.COVAR_SCALE
+        cv2.COVAR_NORMAL | cv2.COVAR_ROWS | cv2.COVAR_SCALE,
     )
     ic_s2 = cv2.invert(sigma_s2, cv2.DECOMP_SVD)[1]
 
     sigma_g, mu_g = cv2.calcCovarMatrix(
-        ground,
-        None,
-        cv2.COVAR_NORMAL | cv2.COVAR_ROWS | cv2.COVAR_SCALE
+        ground, None, cv2.COVAR_NORMAL | cv2.COVAR_ROWS | cv2.COVAR_SCALE
     )
     icg = cv2.invert(sigma_g, cv2.DECOMP_SVD)[1]
 
@@ -166,20 +157,16 @@ def refine_sky(bopt, image):
         ics = ic_s2
 
     for x in range(image.shape[1]):
-        cnt = np.sum(np.less(
-            spatial.distance.cdist(
-                image[0:bopt[x], x],
-                mu_s,
-                'mahalanobis',
-                VI=ics
-            ),
-            spatial.distance.cdist(
-                image[0:bopt[x], x],
-                mu_g,
-                'mahalanobis',
-                VI=icg
+        cnt = np.sum(
+            np.less(
+                spatial.distance.cdist(
+                    image[0 : bopt[x], x], mu_s, "mahalanobis", VI=ics
+                ),
+                spatial.distance.cdist(
+                    image[0 : bopt[x], x], mu_g, "mahalanobis", VI=icg
+                ),
             )
-        ))
+        )
 
         if cnt < (bopt[x] / 2):
             bopt[x] = 0
@@ -197,7 +184,7 @@ def mask(b, image, color=[0, 0, 255]):
         image,
         1,
         0,
-        result
+        result,
     )
 
 

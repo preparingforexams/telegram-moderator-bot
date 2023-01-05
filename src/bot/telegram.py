@@ -70,17 +70,20 @@ def handle_updates(handler: Callable[[dict], None]):
             _LOG.error("Could not handle update", exc_info=e)
 
 
-def send_message(chat_id: int, text: str,
-    reply_to_message_id: Optional[int] = None) -> dict:
-    return _get_actual_body(_session.post(
-        _build_url("sendMessage"),
-        json={
-            "text": text,
-            "chat_id": chat_id,
-            "reply_to_message_id": reply_to_message_id,
-            "allow_sending_without_reply": True,
-        },
-    ))
+def send_message(
+    chat_id: int, text: str, reply_to_message_id: Optional[int] = None
+) -> dict:
+    return _get_actual_body(
+        _session.post(
+            _build_url("sendMessage"),
+            json={
+                "text": text,
+                "chat_id": chat_id,
+                "reply_to_message_id": reply_to_message_id,
+                "allow_sending_without_reply": True,
+            },
+        )
+    )
 
 
 def delete_message(message: dict) -> bool:
@@ -88,13 +91,15 @@ def delete_message(message: dict) -> bool:
     message_id = message["message_id"]
 
     try:
-        _get_actual_body(_session.post(
-            _build_url("deleteMessage"),
-            json={
-                "chat_id": chat_id,
-                "message_id": message_id,
-            },
-        ))
+        _get_actual_body(
+            _session.post(
+                _build_url("deleteMessage"),
+                json={
+                    "chat_id": chat_id,
+                    "message_id": message_id,
+                },
+            )
+        )
     except (ValueError, HTTPError) as e:
         _LOG.error("Could not delete message", exc_info=e)
         return False
@@ -103,12 +108,14 @@ def delete_message(message: dict) -> bool:
 
 
 def download_file(file_id: str, file: IO[bytes]):
-    body = _get_actual_body(_session.post(
-        _build_url("getFile"),
-        json={
-            "file_id": file_id,
-        },
-    ))
+    body = _get_actual_body(
+        _session.post(
+            _build_url("getFile"),
+            json={
+                "file_id": file_id,
+            },
+        )
+    )
 
     file_path = body["file_path"]
     url = f"https://api.telegram.org/file/bot{_API_KEY}/{file_path}"
@@ -124,28 +131,32 @@ def send_image(
     caption: Optional[str] = None,
     reply_to_message_id: Optional[int] = None,
 ) -> dict:
-    return _get_actual_body(_session.post(
-        _build_url("sendPhoto"),
-        files={
-            "photo": image_file,
-        },
-        data={
-            "caption": caption,
-            "chat_id": chat_id,
-            "reply_to_message_id": reply_to_message_id,
-        },
-    ))
+    return _get_actual_body(
+        _session.post(
+            _build_url("sendPhoto"),
+            files={
+                "photo": image_file,
+            },
+            data={
+                "caption": caption,
+                "chat_id": chat_id,
+                "reply_to_message_id": reply_to_message_id,
+            },
+        )
+    )
 
 
 def forward_message(
     to_chat_id: int,
     message: dict,
 ) -> dict:
-    return _get_actual_body(_session.post(
-        _build_url("forwardMessage"),
-        json={
-            "chat_id": to_chat_id,
-            "from_chat_id": message["chat"]["id"],
-            "message_id": message["message_id"],
-        },
-    ))
+    return _get_actual_body(
+        _session.post(
+            _build_url("forwardMessage"),
+            json={
+                "chat_id": to_chat_id,
+                "from_chat_id": message["chat"]["id"],
+                "message_id": message["message_id"],
+            },
+        )
+    )

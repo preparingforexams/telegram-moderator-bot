@@ -67,7 +67,9 @@ class SkyRule(Rule):
     @staticmethod
     def _find_largest_photo(photos: List[dict]) -> str:
         # We can only download up to 20 MB
-        available_photos = (photo for photo in photos if photo["file_size"] < 20_000_000)
+        available_photos = (
+            photo for photo in photos if photo["file_size"] < 20_000_000
+        )
         max_photo = max(available_photos, key=lambda photo: photo["file_size"])
         return max_photo["file_id"]
 

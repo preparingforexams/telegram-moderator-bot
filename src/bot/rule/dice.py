@@ -63,5 +63,7 @@ class DiceRule(Rule):
         reply_message: Optional[dict] = message.get("reply_to_message")
         if reply_message:
             _LOG.debug("Forwarding replied-to message as well")
-            telegram.forward_message(to_chat_id=self.config.forward_to, message=reply_message)
+            telegram.forward_message(
+                to_chat_id=self.config.forward_to, message=reply_message
+            )
         telegram.forward_message(to_chat_id=self.config.forward_to, message=message)

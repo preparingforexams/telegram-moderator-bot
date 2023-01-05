@@ -34,7 +34,7 @@ class NhoRule(Rule):
             _LOG.warning("No config found")
             return _Config([])
 
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             config_dict = yaml.load(f, yaml.Loader)
             if not config_dict:
                 _LOG.warning("Config is empty")
