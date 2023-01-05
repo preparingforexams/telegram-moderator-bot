@@ -27,7 +27,7 @@ class _ChatConfig:
             time_diff = abs(now - last)
             return time_diff > cooldown
         else:
-            berlin = ZoneInfo('Europe/Berlin')
+            berlin = ZoneInfo("Europe/Berlin")
             local_last = last.astimezone(berlin)
             local_now = now.astimezone(berlin)
 
@@ -35,19 +35,19 @@ class _ChatConfig:
 
     @classmethod
     def from_dict(cls, config_dict: dict) -> _ChatConfig:
-        emojis = config_dict.get('emojis', [])
-        cooldown_dict = config_dict.get('cooldown', None)
+        emojis = config_dict.get("emojis", [])
+        cooldown_dict = config_dict.get("cooldown", None)
         if cooldown_dict is None:
             return _ChatConfig(emojis, None)
 
         if not cooldown_dict:
-            raise ValueError('Not cooldown specified')
+            raise ValueError("Not cooldown specified")
 
         cooldown = timedelta(
-            days=cooldown_dict.get('days', 0),
-            hours=cooldown_dict.get('hours', 0),
-            minutes=cooldown_dict.get('minutes', 0),
-            seconds=cooldown_dict.get('seconds', 0),
+            days=cooldown_dict.get("days", 0),
+            hours=cooldown_dict.get("hours", 0),
+            minutes=cooldown_dict.get("minutes", 0),
+            seconds=cooldown_dict.get("seconds", 0),
         )
 
         return _ChatConfig(
@@ -63,8 +63,7 @@ class _Config:
     @classmethod
     def from_dict(cls, config_dict: dict) -> _Config:
         config_by_chat_id = {
-            key: _ChatConfig.from_dict(value)
-            for key, value in config_dict.items()
+            key: _ChatConfig.from_dict(value) for key, value in config_dict.items()
         }
         return _Config(
             config_by_chat_id=config_by_chat_id,
@@ -75,7 +74,9 @@ class DartsRule(Rule):
     name = "darts"
 
     def __init__(self, config_dir: str):
-        self._last_dart_by_user_id_by_chat_id: Dict[int, Dict[int, datetime]] = defaultdict(lambda: {})
+        self._last_dart_by_user_id_by_chat_id: Dict[
+            int, Dict[int, datetime]
+        ] = defaultdict(lambda: {})
         self._config = self._load_config(config_dir)
 
     @staticmethod
@@ -85,7 +86,7 @@ class DartsRule(Rule):
             _LOG.warning("No config found")
             return _Config({})
 
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             config_dict = yaml.load(f, yaml.Loader)
             if not config_dict:
                 _LOG.warning("Config is empty")
@@ -99,25 +100,27 @@ class DartsRule(Rule):
             _LOG.debug("Not enabled in chat %d", chat_id)
             return
 
-        dice = message.get('dice')
+        dice = message.get("dice")
         if not dice:
             return
 
-        if dice['emoji'] not in config.emojis:
-            _LOG.debug("Dice emoji %s was not in %s", dice['emoji'], config.emojis)
+        if dice["emoji"] not in config.emojis:
+            _LOG.debug("Dice emoji %s was not in %s", dice["emoji"], config.emojis)
             return
 
-        user = message['from']
-        username = user['first_name']
-        user_id = user['id']
+        user = message["from"]
+        username = user["first_name"]
+        user_id = user["id"]
 
-        message_time = datetime.fromtimestamp(message['date'], tz=timezone.utc)
+        message_time = datetime.fromtimestamp(message["date"], tz=timezone.utc)
         last_dart = self._last_dart_by_user_id_by_chat_id[chat_id]
         last_message = last_dart.get(user_id)
         last_dart[user_id] = message_time
 
         if not last_message:
-            _LOG.debug("No known last message from user %s in chat %d", username, chat_id)
+            _LOG.debug(
+                "No known last message from user %s in chat %d", username, chat_id
+            )
             return
 
         if config.is_cooled_down(last=last_message, now=message_time):
