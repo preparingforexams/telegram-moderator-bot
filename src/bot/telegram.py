@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from typing import IO
-from typing import Optional, Union, List, Callable, BinaryIO
+from typing import Optional, Union, List, Callable
 
 import requests
 from requests.exceptions import HTTPError
@@ -15,7 +15,7 @@ _API_KEY = os.getenv("TELEGRAM_API_KEY")
 
 def _build_session() -> requests.Session:
     session = requests.Session()
-    session.request = functools.partial(session.request, timeout=20)
+    session.request = functools.partial(session.request, timeout=20)  # type: ignore
     return session
 
 
@@ -51,11 +51,11 @@ def _request_updates(last_update_id: Optional[int]) -> List[dict]:
             json=body,
             timeout=15,
         )
-    except (ConnectionError | requests.RequestException) as e:
+    except (ConnectionError, requests.RequestException) as e:
         _LOG.warning("Got exception during update request", exc_info=e)
         return []
 
-    return _get_actual_body(response)
+    return _get_actual_body(response)  # type: ignore
 
 
 def handle_updates(handler: Callable[[dict], None]):
@@ -73,7 +73,7 @@ def handle_updates(handler: Callable[[dict], None]):
 def send_message(
     chat_id: int, text: str, reply_to_message_id: Optional[int] = None
 ) -> dict:
-    return _get_actual_body(
+    return _get_actual_body(  # type: ignore
         _session.post(
             _build_url("sendMessage"),
             json={
@@ -108,7 +108,7 @@ def delete_message(message: dict) -> bool:
 
 
 def download_file(file_id: str, file: IO[bytes]):
-    body = _get_actual_body(
+    body: dict = _get_actual_body(  # type: ignore
         _session.post(
             _build_url("getFile"),
             json={
@@ -131,7 +131,7 @@ def send_image(
     caption: Optional[str] = None,
     reply_to_message_id: Optional[int] = None,
 ) -> dict:
-    return _get_actual_body(
+    return _get_actual_body(  # type:ignore
         _session.post(
             _build_url("sendPhoto"),
             files={
@@ -150,7 +150,7 @@ def forward_message(
     to_chat_id: int,
     message: dict,
 ) -> dict:
-    return _get_actual_body(
+    return _get_actual_body(  # type: ignore
         _session.post(
             _build_url("forwardMessage"),
             json={

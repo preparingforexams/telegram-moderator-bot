@@ -5,7 +5,7 @@ from typing import Tuple
 import cv2
 import numpy as np
 from scipy import spatial
-from typing.io import IO
+from typing import IO
 
 _LOG = logging.getLogger(__name__)
 
@@ -210,6 +210,6 @@ def detect_sky(image) -> Tuple[bool, str]:
 
 class SkyDetector:
     @staticmethod
-    def detect(image_file: IO) -> Tuple[bool, str]:
+    def detect(image_file: IO[bytes]) -> Tuple[bool, str]:
         image = cv2.imread(image_file.name)
         return detect_sky(image)
