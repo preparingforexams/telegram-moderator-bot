@@ -1,7 +1,10 @@
-# Files and directories created by pub.
 __pycache__
 venv
 .venv
+*.pyc
+
+# Caches
+.*_cache
 
 # Conventional directory for build output.
 build/
