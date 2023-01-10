@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxext6 \
     && apt-get clean
 
-RUN pip install poetry==1.3.1 --no-cache
+RUN pip install poetry==1.3.2 --no-cache
 RUN poetry config virtualenvs.create false
 
 COPY [ "poetry.toml", "poetry.lock", "pyproject.toml", "./" ]
