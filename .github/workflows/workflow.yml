@@ -62,4 +62,4 @@ jobs:
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG_RAW }}
       - name: Upgrade helm installation
-        run: helm upgrade moderator . --install --namespace=telegram-bots
+        run: helm upgrade moderator . --install --namespace=telegram-bots --atomic
