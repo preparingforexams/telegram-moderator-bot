@@ -58,7 +58,7 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
       - name: Store Kubeconfig
-        run: printenv "KUBECONFIG" > ~/.kube/config
+        run: mkdir ~/.kube && printenv "KUBECONFIG" > ~/.kube/config
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG_RAW }}
       - name: Upgrade helm installation
