@@ -57,7 +57,7 @@ jobs:
           GSA_JSON: ${{ secrets.GSA_JSON }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-      - uses: WyriHaximus/github-action-helm3@v2
-        with:
-          exec: helm upgrade moderator . --install --namespace=telegram-bots
-          kubeconfig: '${{ secrets.KUBECONFIG_RAW }}'
+      - name: Store Kubeconfig
+        run: echo ${{ secrets.KUBECONFIG_RAW }} > ~/.kube/config
+      - name: Upgrade helm installation
+        run: helm upgrade moderator . --install --namespace=telegram-bots
