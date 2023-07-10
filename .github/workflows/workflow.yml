@@ -56,6 +56,7 @@ jobs:
         env:
           ADMIN_USER_ID: ${{ secrets.ADMIN_USER_ID }}
           GSA_JSON: ${{ secrets.GSA_JSON }}
+          OPENAI_TOKEN: ${{ secrets.OPENAI_TOKEN }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
       - name: Store Kubeconfig

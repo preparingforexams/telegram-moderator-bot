@@ -2,6 +2,8 @@ name: moderator
 image: "ghcr.io/preparingforexams/moderatorbot:${GITHUB_SHA}"
 gcp:
   gsaJson: "${GSA_JSON}"
+openai:
+  token: "${OPENAI_TOKEN}"
 telegram:
   adminUserId: "${ADMIN_USER_ID}"
   apiKey: "${TELEGRAM_TOKEN}"

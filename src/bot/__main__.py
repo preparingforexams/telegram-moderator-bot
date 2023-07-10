@@ -40,13 +40,14 @@ def _handle_updates(rules: List[rule.Rule]) -> None:
 
 
 def _init_rules(config_dir: str) -> List[rule.Rule]:
+    secrets = os.environ
     return [
         rule.DartsRule(config_dir),
         rule.DiceRule(config_dir),
         rule.NhoRule(config_dir),
         rule.SkyRule(config_dir),
         rule.SlashRule(config_dir),
-        rule.SmartypantsRule(config_dir),
+        rule.SmartypantsRule(config_dir, secrets=secrets),  # type: ignore
     ]
 
 
