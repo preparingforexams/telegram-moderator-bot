@@ -8,5 +8,5 @@ class Rule(ABC):
         pass
 
     @abstractmethod
-    def __call__(self, chat_id: int, message: dict) -> None:
+    def __call__(self, chat_id: int, message: dict, is_edited: bool) -> None:
         pass

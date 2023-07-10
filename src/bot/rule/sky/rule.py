@@ -36,7 +36,7 @@ class SkyRule(Rule):
         self.config = self._load_config(config_dir)
         self.detector = SkyDetector()
 
-    def __call__(self, chat_id: int, message: dict):
+    def __call__(self, chat_id: int, message: dict, is_edited: bool):
         if chat_id not in self.config.enabled_chats:
             _LOG.debug("Not enabled in chat %d", chat_id)
             return

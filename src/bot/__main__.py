@@ -20,17 +20,19 @@ _LOG = logging.getLogger("bot")
 def _handle_updates(rules: List[rule.Rule]) -> None:
     def _on_update(update: dict):
         message = update.get("message")
+        edited_message = update.get("edited_message")
 
-        if not message:
+        if not (message or edited_message):
             _LOG.debug("Skipping non-message update")
             return
 
-        chat_id = message["chat"]["id"]
+        effective_message: dict = message or edited_message  # type: ignore
+        chat_id = effective_message["chat"]["id"]
 
         for rule in rules:
             _LOG.debug("Passing message to rule %s", rule.name)
             try:
-                rule(chat_id, message)
+                rule(chat_id, effective_message, is_edited=edited_message is not None)
             except Exception as e:
                 _LOG.error("Rule threw an exception", exc_info=e)
 

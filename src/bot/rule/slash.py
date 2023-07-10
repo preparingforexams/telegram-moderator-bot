@@ -30,7 +30,7 @@ class SlashRule(Rule):
 
         return {int(line.strip()) for line in lines}
 
-    def __call__(self, chat_id: int, message: dict):
+    def __call__(self, chat_id: int, message: dict, is_edited: bool):
         if not self._is_enabled(chat_id):
             _LOG.debug("Not enabled in %d", chat_id)
             return
