@@ -33,3 +33,7 @@ data:
     -1001604571340:
       emojis:
         - 🎯
+
+  smartypants.yaml: |
+    enabledChats:
+      - 133399998

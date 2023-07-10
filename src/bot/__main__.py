@@ -46,6 +46,7 @@ def _init_rules(config_dir: str) -> List[rule.Rule]:
         rule.NhoRule(config_dir),
         rule.SkyRule(config_dir),
         rule.SlashRule(config_dir),
+        rule.SmartypantsRule(config_dir),
     ]
 
 
