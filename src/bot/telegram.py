@@ -1,25 +1,16 @@
-import functools
 import json
 import logging
 import os
 from typing import IO
 from typing import Optional, Union, List, Callable
 
-import requests
-from requests.exceptions import HTTPError
+import httpx
 
 _LOG = logging.getLogger(__name__)
 
 _API_KEY = os.getenv("TELEGRAM_API_KEY")
 
-
-def _build_session() -> requests.Session:
-    session = requests.Session()
-    session.request = functools.partial(session.request, timeout=20)  # type: ignore
-    return session
-
-
-_session = _build_session()
+_session = httpx.Client()
 
 
 def is_configured() -> bool:
@@ -30,7 +21,7 @@ def _build_url(method: str) -> str:
     return f"https://api.telegram.org/bot{_API_KEY}/{method}"
 
 
-def _get_actual_body(response: requests.Response) -> Union[dict, list]:
+def _get_actual_body(response: httpx.Response) -> Union[dict, list]:
     response.raise_for_status()
     body = response.json()
     if body.get("ok"):
@@ -51,7 +42,10 @@ def _request_updates(last_update_id: Optional[int]) -> List[dict]:
             json=body,
             timeout=15,
         )
-    except (ConnectionError, requests.RequestException) as e:
+        if 500 < response.status_code <= 600:
+            _LOG.warning("Received server error response %d", response.status_code)
+            return []
+    except httpx.RequestError as e:
         _LOG.warning("Got exception during update request", exc_info=e)
         return []
 
@@ -100,7 +94,7 @@ def delete_message(message: dict) -> bool:
                 },
             )
         )
-    except (ValueError, HTTPError) as e:
+    except (ValueError, httpx.RequestError, httpx.HTTPStatusError) as e:
         _LOG.error("Could not delete message", exc_info=e)
         return False
     else:
@@ -121,7 +115,7 @@ def download_file(file_id: str, file: IO[bytes]):
     url = f"https://api.telegram.org/file/bot{_API_KEY}/{file_path}"
     response = _session.get(url)
     response.raise_for_status()
-    for chunk in response.iter_content(chunk_size=8192):
+    for chunk in response.iter_bytes(chunk_size=8192):
         file.write(chunk)
 
 

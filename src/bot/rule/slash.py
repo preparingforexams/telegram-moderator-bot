@@ -37,10 +37,9 @@ class SlashRule(Rule):
 
         text: Optional[str] = message.get("text")
 
-        if text:
-            if self._is_plain_command(text):
-                _LOG.info("Detected plain command. Deleting...")
-                telegram.delete_message(message)
+        if text and self._is_plain_command(text):
+            _LOG.info("Detected plain command. Deleting...")
+            telegram.delete_message(message)
 
     def _is_enabled(self, chat_id: int) -> bool:
         return chat_id in self.config
