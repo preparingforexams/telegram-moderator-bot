@@ -8,7 +8,7 @@ RUN install_packages \
     libsm6 \
     libxext6
 
-RUN useradd --system --create-home --home-dir /app -s /bin/bash app
+RUN rm -r /app && useradd --system --create-home --home-dir /app -s /bin/bash app
 USER app
 ENV PATH=$PATH:/app/.local/bin
 
