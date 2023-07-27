@@ -2,31 +2,31 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.name }}
+  name: {{ .Release.Name }}
 spec:
   clusterIP: None
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Values.name }}-update-handler
+  name: {{ .Release.Name }}-update-handler
   labels:
-    app: {{ .Values.name }}-update-handler
+    app: {{ .Release.Name }}-update-handler
 spec:
   replicas: 1
-  serviceName: {{ .Values.name }}
+  serviceName: {{ .Release.Name }}
   selector:
     matchLabels:
-      app: {{ .Values.name }}-update-handler
+      app: {{ .Release.Name }}-update-handler
   template:
     metadata:
       labels:
-        app: {{ .Values.name }}-update-handler
+        app: {{ .Release.Name }}-update-handler
     spec:
       volumes:
         - name: config
           configMap:
-            name: {{ .Values.name }}-config
+            name: {{ .Release.Name }}-config
       containers:
         - name: app
           image: {{ .Values.image }}
@@ -42,4 +42,4 @@ spec:
               value: /config
           envFrom:
             - secretRef:
-                name: {{ .Values.name }}-secrets
+                name: {{ .Release.Name }}-secrets

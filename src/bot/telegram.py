@@ -1,8 +1,7 @@
 import json
 import logging
 import os
-from typing import IO
-from typing import Optional, Union, List, Callable
+from typing import IO, Callable, List, Optional, Union
 
 import httpx
 

@@ -1,11 +1,10 @@
 import logging
 import tempfile
-from typing import Tuple
+from typing import IO, Tuple
 
 import cv2
 import numpy as np
 from scipy import spatial
-from typing import IO
 
 _LOG = logging.getLogger(__name__)
 

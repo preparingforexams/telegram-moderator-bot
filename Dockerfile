@@ -1,7 +1,5 @@
 FROM bitnami/python:3.11-debian-11
 
-WORKDIR /app
-
 RUN install_packages \
     libjpeg-dev \
     libpng-dev \
@@ -10,8 +8,16 @@ RUN install_packages \
     libsm6 \
     libxext6
 
-RUN pip install poetry==1.5.1 --no-cache
-RUN poetry config virtualenvs.create false
+RUN useradd --system --create-home --home-dir /app -s /bin/bash app
+USER app
+ENV PATH=$PATH:/app/.local/bin
+
+WORKDIR /app
+
+ENV POETRY_VIRTUALENVS_CREATE=false
+
+RUN pip install pipx==1.2.0 --user --no-cache
+RUN pipx install poetry==1.5.1
 
 COPY [ "poetry.toml", "poetry.lock", "pyproject.toml", "./" ]
 
@@ -20,7 +26,7 @@ COPY src/bot ./src/bot
 
 RUN poetry install --only main
 
-ARG build
-ENV BUILD_SHA=$build
+ARG APP_VERSION
+ENV BUILD_SHA=$APP_VERSION
 
-ENTRYPOINT [ "python", "-m", "bot" ]
+ENTRYPOINT [ "poetry", "run", "python", "-m", "bot" ]

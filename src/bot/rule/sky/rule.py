@@ -4,12 +4,13 @@ from dataclasses import dataclass
 from enum import Enum
 from os import path
 from tempfile import NamedTemporaryFile
-from typing import List, Set, Optional
+from typing import List, Optional, Set
 
 import yaml
 
 from bot import telegram
 from bot.rule.rule import Rule
+
 from .detector import SkyDetector
 
 _LOG = logging.getLogger(__name__)

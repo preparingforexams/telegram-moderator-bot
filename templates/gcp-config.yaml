@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.name }}-gcp
+  name: {{ .Release.Name }}-gcp
 data:
   GOOGLE_CLOUD_PROJECT: prep-telegram-bots
   GOOGLE_APPLICATION_CREDENTIALS: /gcp/sa.json

@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from os import path
-from typing import Set, Dict, Optional
+from typing import Dict, Optional, Set
 
 import yaml
 

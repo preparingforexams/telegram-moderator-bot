@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.name }}-horoscope-sub
+  name: {{ .Release.Name }}-horoscope-sub
 spec:
   strategy:
    type: Recreate
   selector:
     matchLabels:
-      app: {{ .Values.name }}-horoscope-sub
+      app: {{ .Release.Name }}-horoscope-sub
   template:
     metadata:
       labels:
-        app: {{ .Values.name }}-horoscope-sub
+        app: {{ .Release.Name }}-horoscope-sub
     spec:
       volumes:
         - name: config
           configMap:
-            name: {{ .Values.name }}-config
+            name: {{ .Release.Name }}-config
         - name: gcp-secrets
           secret:
-            secretName: {{ .Values.name }}-gcp-secrets
+            secretName: {{ .Release.Name }}-gcp-secrets
       containers:
         - name: app
           image: {{ .Values.image }}
@@ -41,6 +41,6 @@ spec:
               value: /config
           envFrom:
             - configMapRef:
-                name: {{ .Values.name }}-gcp
+                name: {{ .Release.Name }}-gcp
             - secretRef:
-                name: {{ .Values.name }}-secrets
+                name: {{ .Release.Name }}-secrets

@@ -1,5 +1,8 @@
-name: Workflow
-on: [ push ]
+name: Main
+on:
+  push:
+    branches: [ main ]
+  pull_request: { }
 
 jobs:
   lint:
@@ -13,6 +16,7 @@ jobs:
       - name: Check coding standards
         run: |
           poetry run black --check src/
+          poetry run isort --check-only src/
           poetry run mypy src/
 
   test:
@@ -26,42 +30,76 @@ jobs:
       - name: Run tests
         run: poetry run pytest src/
 
-  push_docker:
+  build-container-image:
+    runs-on: ubuntu-latest
+    if: success() && github.event_name == 'pull_request'
+    needs:
+      - lint
+      - test
+    steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v4
+      - name: Build container image
+        uses: docker/build-push-action@v4
+        with:
+          push: false
+          tags: "ghcr.io/${{ env.GITHUB_REPOSITORY_OWNER_PART_SLUG }}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}/app:${{ github.sha }}"
+
+  push-container-image:
     runs-on: ubuntu-latest
     needs:
       - lint
       - test
-    if: success() && github.ref == 'refs/heads/main'
+    if: success() && github.ref_name == github.event.repository.default_branch
     steps:
-      - uses: actions/checkout@v3
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v4
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build the tagged Docker image
-        run: docker build -t ghcr.io/preparingforexams/moderatorbot:${GITHUB_SHA} --build-arg "build=${GITHUB_SHA}" .
-      - name: Push the tagged Docker image
-        run: docker push ghcr.io/preparingforexams/moderatorbot:${GITHUB_SHA}
+          password: ${{ github.token }}
+      - name: Build and push container image
+        uses: docker/build-push-action@v4
+        with:
+          build-args: APP_VERSION=${{ github.sha }}
+          push: true
+          tags: "ghcr.io/${{ env.GITHUB_REPOSITORY_OWNER_PART_SLUG }}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}:${{ github.sha }}"
 
   deploy:
     runs-on: ubuntu-latest
-    needs: push_docker
+    needs: push-container-image
     concurrency: production
     steps:
       - uses: actions/checkout@v3
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v4
       - name: Substitute environment variables in values.yaml
-        run: "envsubst < values.yaml > values_sub.yaml && mv values_sub.yaml values.yaml"
         env:
           ADMIN_USER_ID: ${{ secrets.ADMIN_USER_ID }}
           GSA_JSON: ${{ secrets.GSA_JSON }}
           OPENAI_TOKEN: ${{ secrets.OPENAI_TOKEN }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-      - name: Store Kubeconfig
-        run: mkdir ~/.kube && printenv "KUBECONFIG" > ~/.kube/config && chmod 400 ~/.kube/config
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG_RAW }}
-      - name: Upgrade helm installation
-        run: helm upgrade moderator . --install --namespace=telegram-bots --atomic
+          IMAGE_NAME: "ghcr.io/${{ env.GITHUB_REPOSITORY_OWNER_PART_SLUG }}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}"
+        run: "envsubst < values.yaml > values_sub.yaml && mv values_sub.yaml values.yaml"
+      - uses: WyriHaximus/github-action-helm3@v3
+        with:
+          exec: helm upgrade moderator . --install --namespace=telegram-bots --atomic
+          kubeconfig: '${{ secrets.KUBECONFIG_RAW }}'
+
+  clean:
+    runs-on: ubuntu-latest
+    concurrency: cleanup
+    continue-on-error: true
+    needs: [ deploy ]
+    steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v4
+      - name: Clean up old app container images
+        uses: actions/delete-package-versions@v4
+        with:
+          package-name: ${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}
+          package-type: container
+          min-versions-to-keep: 10

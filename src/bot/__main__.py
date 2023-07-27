@@ -5,8 +5,7 @@ from typing import List
 
 import sentry_sdk
 
-from bot import rule
-from bot import telegram
+from bot import rule, telegram
 from bot.event import rules as event_rule
 from bot.event.rule import EventRule
 from bot.event.subscriber import EventSubscriber
