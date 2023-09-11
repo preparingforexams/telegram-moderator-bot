@@ -8,7 +8,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 certifi = "2023.7.22"
 google-cloud-pubsub = "^2.13.11"
-httpx = "^0.24.1"
+httpx = "^0.25.0"
 numpy = "^1.24.1"
 opencv-python = "4.8.0.76"
 pyyaml = "6.0.1"
