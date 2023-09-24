@@ -113,17 +113,17 @@ class DartsRule(Rule):
         user_id = user["id"]
 
         message_time = datetime.fromtimestamp(message["date"], tz=timezone.utc)
-        last_dart = self._last_dart_by_user_id_by_chat_id[chat_id]
-        last_message = last_dart.get(user_id)
-        last_dart[user_id] = message_time
+        last_dart_by_user_id = self._last_dart_by_user_id_by_chat_id[chat_id]
+        last_dart_time = last_dart_by_user_id.get(user_id)
+        last_dart_by_user_id[user_id] = message_time
 
-        if not last_message:
+        if not last_dart_time:
             _LOG.debug(
                 "No known last message from user %s in chat %d", username, chat_id
             )
             return
 
-        if config.is_cooled_down(last=last_message, now=message_time):
+        if config.is_cooled_down(last=last_dart_time, now=message_time):
             _LOG.debug("Cooldown expired")
             return
 
