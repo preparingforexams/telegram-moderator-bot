@@ -5,10 +5,10 @@ from typing import List
 
 import sentry_sdk
 
-from bot import rule, telegram
-from bot.event import rules as event_rule
-from bot.event.rule import EventRule
-from bot.event.subscriber import EventSubscriber
+from bot import rules, telegram
+from bot.events import rules as event_rule
+from bot.events.rule import EventRule
+from bot.events.subscriber import EventSubscriber
 
 _ADMIN_USER_ID = os.getenv("ADMIN_USER_ID")
 _CONFIG_DIRECTORY = os.getenv("CONFIG_DIR")
@@ -16,7 +16,7 @@ _CONFIG_DIRECTORY = os.getenv("CONFIG_DIR")
 _LOG = logging.getLogger("bot")
 
 
-def _handle_updates(rules: List[rule.Rule]) -> None:
+def _handle_updates(rule_list: List[rules.Rule]) -> None:
     def _on_update(update: dict):
         message = update.get("message")
         edited_message = update.get("edited_message")
@@ -28,7 +28,7 @@ def _handle_updates(rules: List[rule.Rule]) -> None:
         effective_message: dict = message or edited_message  # type: ignore
         chat_id = effective_message["chat"]["id"]
 
-        for rule in rules:
+        for rule in rule_list:
             _LOG.debug("Passing message to rule %s", rule.name)
             try:
                 rule(chat_id, effective_message, is_edited=edited_message is not None)
@@ -38,15 +38,15 @@ def _handle_updates(rules: List[rule.Rule]) -> None:
     telegram.handle_updates(_on_update)
 
 
-def _init_rules(config_dir: str) -> List[rule.Rule]:
+def _init_rules(config_dir: str) -> List[rules.Rule]:
     secrets = os.environ
     return [
-        rule.DartsRule(config_dir),
-        rule.DiceRule(config_dir),
-        rule.NhoRule(config_dir),
-        rule.SkyRule(config_dir),
-        rule.SlashRule(config_dir),
-        rule.SmartypantsRule(config_dir, secrets=secrets),  # type: ignore
+        rules.DartsRule(config_dir),
+        rules.DiceRule(config_dir),
+        rules.NhoRule(config_dir),
+        rules.SkyRule(config_dir),
+        rules.SlashRule(config_dir),
+        rules.SmartypantsRule(config_dir, secrets=secrets),  # type: ignore
     ]
 
 

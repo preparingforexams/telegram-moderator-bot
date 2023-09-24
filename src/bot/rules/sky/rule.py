@@ -9,7 +9,7 @@ from typing import List, Optional, Set
 import yaml
 
 from bot import telegram
-from bot.rule.rule import Rule
+from bot.rules.rule import Rule
 
 from .detector import SkyDetector
 

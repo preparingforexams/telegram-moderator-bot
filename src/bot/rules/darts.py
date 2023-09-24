@@ -6,12 +6,12 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from os import path
 from typing import Dict, List, Optional
-from zoneinfo import ZoneInfo
 
 import yaml
+from zoneinfo import ZoneInfo
 
 from bot import telegram
-from bot.rule.rule import Rule
+from bot.rules.rule import Rule
 
 _LOG = logging.getLogger(__name__)
 

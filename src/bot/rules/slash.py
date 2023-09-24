@@ -4,7 +4,7 @@ from os import path
 from typing import Optional, Set
 
 from bot import telegram
-from bot.rule import Rule
+from bot.rules import Rule
 
 _LOG = logging.getLogger(__name__)
 

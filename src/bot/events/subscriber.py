@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from google.cloud.pubsub_v1 import SubscriberClient
 from google.cloud.pubsub_v1.subscriber.message import Message
 
-from bot.event.rule import EventRule
+from bot.events.rule import EventRule
 
 _LOG = logging.getLogger(__name__)
 

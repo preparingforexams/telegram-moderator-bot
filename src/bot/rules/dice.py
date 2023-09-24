@@ -6,7 +6,7 @@ from typing import Dict, Optional, Set
 import yaml
 
 from bot import telegram
-from bot.rule.rule import Rule
+from bot.rules.rule import Rule
 
 _LOG = logging.getLogger(__name__)
 

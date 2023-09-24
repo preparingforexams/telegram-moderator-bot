@@ -4,7 +4,7 @@ import logging
 from dataclasses import dataclass
 
 from bot import telegram
-from bot.event.rule import EventRule
+from bot.events.rule import EventRule
 
 _LOG = logging.getLogger(__name__)
 

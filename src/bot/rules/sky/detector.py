@@ -148,11 +148,9 @@ def refine_sky(bopt, image):
 
     if cv2.Mahalanobis(mu_s1, mu_g, ic_s1) > cv2.Mahalanobis(mu_s2, mu_g, ic_s2):
         mu_s = mu_s1
-        sigma_s = sigma_s1
         ics = ic_s1
     else:
         mu_s = mu_s2
-        sigma_s = sigma_s2
         ics = ic_s2
 
     for x in range(image.shape[1]):

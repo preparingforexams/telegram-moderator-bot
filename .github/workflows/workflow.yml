@@ -15,8 +15,8 @@ jobs:
       - run: poetry install
       - name: Check coding standards
         run: |
+          poetry run ruff check src/
           poetry run black --check src/
-          poetry run isort --check-only src/
           poetry run mypy src/
 
   test:

@@ -5,7 +5,7 @@ from typing import Self
 
 import yaml
 
-from bot.rule import Rule
+from bot.rules import Rule
 
 _LOG = logging.getLogger(__name__)
 
