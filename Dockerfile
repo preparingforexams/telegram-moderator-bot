@@ -1,32 +1,44 @@
-FROM bitnami/python:3.11-debian-11
+FROM python:3.11-slim-bookworm AS base
 
-RUN install_packages \
-    libjpeg-dev \
-    libpng-dev \
-    libgl1 \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6
+RUN groupadd --system --gid 500 app
+RUN useradd --system --uid 500 --gid app --create-home --home-dir /app -s /bin/bash app
 
-RUN rm -r /app && useradd --system --create-home --home-dir /app -s /bin/bash app
+RUN apt-get update -qq \
+    && apt-get install -y --no-install-recommends \
+        curl \
+        libjpeg-dev \
+        libpng-dev \
+        libgl1 \
+        libglib2.0-0 \
+        libsm6 \
+        libxext6 \
+        tini \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# renovate: datasource=pypi depName=poetry
+ENV POETRY_VERSION=1.6.1
+ENV POETRY_HOME="/opt/poetry"
+ENV POETRY_VIRTUALENVS_IN_PROJECT=false
+ENV PATH="$POETRY_HOME/bin:$PATH"
+
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
 USER app
-ENV PATH=$PATH:/app/.local/bin
-
 WORKDIR /app
 
-ENV POETRY_VIRTUALENVS_CREATE=false
-
-RUN pip install pipx==1.2.0 --user --no-cache
-RUN pipx install poetry==1.6.1
-
 COPY [ "poetry.toml", "poetry.lock", "pyproject.toml", "./" ]
+
+RUN poetry install --no-interaction --ansi --only=main --no-root
+
+FROM base AS prod
 
 # We don't want the tests
 COPY src/bot ./src/bot
 
-RUN poetry install --only main
+RUN poetry install --no-interaction --ansi --only-root
 
 ARG APP_VERSION
 ENV BUILD_SHA=$APP_VERSION
 
-ENTRYPOINT [ "poetry", "run", "python", "-m", "bot" ]
+ENTRYPOINT [ "tini", "--", "poetry", "run", "python", "-m", "bot" ]
