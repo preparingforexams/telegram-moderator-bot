@@ -15,7 +15,7 @@ httpx = "^0.25.0"
 numpy = "^1.24.1"
 opencv-python = "4.8.1.78"
 pyyaml = "6.0.1"
-python = "~3.11"
+python = "~3.12"
 scipy = "^1.10.0"
 sentry-sdk = "^1.12.1"
 
