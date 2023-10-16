@@ -100,6 +100,10 @@ class DartsRule(Rule):
             _LOG.debug("Not enabled in chat %d", chat_id)
             return
 
+        if is_edited:
+            _LOG.info("Skipping edited message")
+            return
+
         dice = message.get("dice")
         if not dice:
             return
