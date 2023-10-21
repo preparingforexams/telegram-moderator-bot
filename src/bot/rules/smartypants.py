@@ -30,7 +30,7 @@ class _Config:
         )
 
 
-class SmartypantsRule(Rule):
+class SmartypantsRule(Rule[None]):
     @property
     def name(self) -> str:
         return "smartypants"
@@ -53,7 +53,17 @@ class SmartypantsRule(Rule):
 
         return _Config.from_dict({**secrets, **config_dict})
 
-    def __call__(self, chat_id: int, message: dict, is_edited: bool) -> None:
+    def initial_state(self) -> None:
+        pass
+
+    def __call__(
+        self,
+        chat_id: int,
+        message: dict,
+        is_edited: bool,
+        *,
+        state: None,
+    ) -> None:
         if chat_id not in self.config.enabled_chat_ids:
             _LOG.debug("Disabled in chat %d", chat_id)
             return

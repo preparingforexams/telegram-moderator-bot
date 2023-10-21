@@ -43,7 +43,17 @@ class DiceRule(Rule):
             },
         )
 
-    def __call__(self, chat_id: int, message: dict, is_edited: bool):
+    def initial_state(self) -> None:
+        pass
+
+    def __call__(
+        self,
+        chat_id: int,
+        message: dict,
+        is_edited: bool,
+        *,
+        state: None,
+    ):
         allowed_emojis = self.config.allowed_emojis.get(chat_id)
         if allowed_emojis is None:
             _LOG.debug("Not enabled in %d", chat_id)

@@ -45,7 +45,17 @@ class NhoRule(Rule):
     def __init__(self, config_dir: str):
         self._config = self._load_config(config_dir)
 
-    def __call__(self, chat_id: int, message: dict, is_edited: bool) -> None:
+    def initial_state(self) -> None:
+        pass
+
+    def __call__(
+        self,
+        chat_id: int,
+        message: dict,
+        is_edited: bool,
+        *,
+        state: None,
+    ) -> None:
         if chat_id not in self._config.enabled_chat_ids:
             return
         _LOG.debug("Enabled in chat %d", chat_id)

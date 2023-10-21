@@ -1,12 +1,28 @@
 from abc import ABC, abstractmethod
+from typing import Generic, TypeVar, Union
+
+from pydantic import BaseModel
+
+S = TypeVar("S", bound=Union[BaseModel, None])
 
 
-class Rule(ABC):
+class Rule(ABC, Generic[S]):
     @property
     @abstractmethod
     def name(self) -> str:
         pass
 
     @abstractmethod
-    def __call__(self, chat_id: int, message: dict, is_edited: bool) -> None:
+    def initial_state(self) -> S:
+        pass
+
+    @abstractmethod
+    def __call__(
+        self,
+        chat_id: int,
+        message: dict,
+        is_edited: bool,
+        *,
+        state: S,
+    ) -> None:
         pass
