@@ -7,7 +7,7 @@ from typing import Generic, List, TypeVar
 
 import sentry_sdk
 from bs_state import StateStorage
-from bs_state.implementation import memory_storage
+from bs_state.implementation import config_map_storage
 from pydantic import BaseModel
 
 from bot import rules, telegram
@@ -73,7 +73,26 @@ def _load_state_storage(rule: rules.Rule[S | None]) -> StateStorage[S] | None:
     if initial_state is None:
         return None
 
-    return asyncio.run(memory_storage.load(initial_state=initial_state))
+    if os.getenv("DEBUG_MODE"):
+        from bs_state.implementation import memory_storage
+
+        load_storage = memory_storage.load(initial_state=initial_state)
+    else:
+        name_prefix = os.getenv("STATE_NAME_PREFIX")
+        namespace = os.getenv("STATE_NAMESPACE")
+
+        if not (namespace and name_prefix):
+            raise ValueError("Kubernetes state config missing")
+
+        name = f"{name_prefix}{rule.name}"
+
+        load_storage = config_map_storage.load(
+            initial_state=initial_state,
+            namespace=namespace,
+            config_map_name=name,
+        )
+
+    return asyncio.run(load_storage)
 
 
 def _init_rules(config_dir: str) -> List[RuleState]:

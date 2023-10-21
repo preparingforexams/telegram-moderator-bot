@@ -40,6 +40,10 @@ spec:
           env:
             - name: CONFIG_DIR
               value: /config
+            - name: STATE_NAME_PREFIX
+              value: {{ .Release.Name }}-state-
+            - name: STATE_NAMESPACE
+              value: {{ .Release.Namespace }}
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-secrets
