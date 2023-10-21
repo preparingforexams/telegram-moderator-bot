@@ -70,7 +70,7 @@ class _Config:
         )
 
 
-class DartsRule(Rule):
+class DartsRule(Rule[None]):
     name = "darts"
 
     def __init__(self, config_dir: str):
@@ -94,7 +94,17 @@ class DartsRule(Rule):
 
         return _Config.from_dict(config_dict)
 
-    def __call__(self, chat_id: int, message: dict, is_edited: bool) -> None:
+    def initial_state(self) -> None:
+        pass
+
+    def __call__(
+        self,
+        chat_id: int,
+        message: dict,
+        is_edited: bool,
+        *,
+        state: None,
+    ) -> None:
         config = self._config.config_by_chat_id.get(chat_id)
         if not config:
             _LOG.debug("Not enabled in chat %d", chat_id)

@@ -1,9 +1,11 @@
 import logging
 import os
 import sys
-from typing import List
+from dataclasses import dataclass
+from typing import Generic, List, TypeVar, Union
 
 import sentry_sdk
+from pydantic import BaseModel
 
 from bot import rules, telegram
 from bot.events import rules as event_rule
@@ -15,8 +17,16 @@ _CONFIG_DIRECTORY = os.getenv("CONFIG_DIR")
 
 _LOG = logging.getLogger("bot")
 
+S = TypeVar("S", bound=Union[BaseModel, None])
 
-def _handle_updates(rule_list: List[rules.Rule]) -> None:
+
+@dataclass
+class RuleState(Generic[S]):
+    rule: rules.Rule[S]
+    state: S
+
+
+def _handle_updates(rule_list: list[RuleState]) -> None:
     def _on_update(update: dict):
         message = update.get("message")
         edited_message = update.get("edited_message")
@@ -28,19 +38,30 @@ def _handle_updates(rule_list: List[rules.Rule]) -> None:
         effective_message: dict = message or edited_message  # type: ignore
         chat_id = effective_message["chat"]["id"]
 
-        for rule in rule_list:
+        for rule_state in rule_list:
+            rule = rule_state.rule
             _LOG.debug("Passing message to rule %s", rule.name)
             try:
-                rule(chat_id, effective_message, is_edited=edited_message is not None)
+                rule(
+                    chat_id,
+                    effective_message,
+                    is_edited=edited_message is not None,
+                    state=rule_state.state,
+                )
             except Exception as e:
                 _LOG.error("Rule threw an exception", exc_info=e)
 
     telegram.handle_updates(_on_update)
 
 
-def _init_rules(config_dir: str) -> List[rules.Rule]:
+def _load_state(rule: rules.Rule[S]) -> S:
+    # TODO: load state
+    return rule.initial_state()
+
+
+def _init_rules(config_dir: str) -> List[RuleState]:
     secrets = os.environ
-    return [
+    initialized_rules = [
         rules.DartsRule(config_dir),
         rules.DiceRule(config_dir),
         rules.NhoRule(config_dir),
@@ -48,6 +69,7 @@ def _init_rules(config_dir: str) -> List[rules.Rule]:
         rules.SlashRule(config_dir),
         rules.SmartypantsRule(config_dir, secrets=secrets),  # type: ignore
     ]
+    return [RuleState(rule, _load_state(rule)) for rule in initialized_rules]
 
 
 def _setup_logging():
@@ -97,8 +119,8 @@ def main() -> None:
         )
         subscriber.subscribe()
     else:
-        rules = _init_rules(_CONFIG_DIRECTORY or "config")
-        _handle_updates(rules)
+        rule_states = _init_rules(_CONFIG_DIRECTORY or "config")
+        _handle_updates(rule_states)
 
 
 if __name__ == "__main__":
