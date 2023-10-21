@@ -23,6 +23,7 @@ spec:
       labels:
         app: {{ .Release.Name }}-update-handler
     spec:
+      serviceAccountName: {{ .Release.Name }}
       volumes:
         - name: config
           configMap:
