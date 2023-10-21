@@ -8,14 +8,20 @@ packages = [
     { include = "bot", from = "src" }
 ]
 
+[[tool.poetry.source]]
+name = "internal"
+url = "https://pypi.blindfolded.surgery"
+priority = "explicit"
+
 [tool.poetry.dependencies]
+bs-state = { version = "0.1.0", source = "internal" }
 certifi = "2023.7.22"
 google-cloud-pubsub = "^2.13.11"
 httpx = "^0.25.0"
 numpy = "^1.24.1"
 opencv-python = "4.8.1.78"
 pyyaml = "6.0.1"
-python = "~3.12"
+python = "~3.11"
 scipy = "^1.10.0"
 sentry-sdk = "^1.12.1"
 

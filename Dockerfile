@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bookworm AS base
+FROM python:3.11-slim-bookworm AS base
 
 RUN groupadd --system --gid 500 app
 RUN useradd --system --uid 500 --gid app --create-home --home-dir /app -s /bin/bash app
