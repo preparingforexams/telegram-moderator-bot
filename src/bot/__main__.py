@@ -1,10 +1,13 @@
+import asyncio
 import logging
 import os
 import sys
 from dataclasses import dataclass
-from typing import Generic, List, TypeVar, Union
+from typing import Generic, List, TypeVar
 
 import sentry_sdk
+from bs_state import StateStorage
+from bs_state.implementation import memory_storage
 from pydantic import BaseModel
 
 from bot import rules, telegram
@@ -17,13 +20,13 @@ _CONFIG_DIRECTORY = os.getenv("CONFIG_DIR")
 
 _LOG = logging.getLogger("bot")
 
-S = TypeVar("S", bound=Union[BaseModel, None])
+S = TypeVar("S", bound=BaseModel)
 
 
 @dataclass
 class RuleState(Generic[S]):
     rule: rules.Rule[S]
-    state: S
+    state_storage: StateStorage[S] | None  # type: ignore[type-var]
 
 
 def _handle_updates(rule_list: list[RuleState]) -> None:
@@ -40,23 +43,37 @@ def _handle_updates(rule_list: list[RuleState]) -> None:
 
         for rule_state in rule_list:
             rule = rule_state.rule
+            _LOG.debug("Loading state for rule %s", rule.name)
+            # TODO: run in async context
+            state_storage = rule_state.state_storage
+            if state_storage is not None:
+                state = asyncio.run(state_storage.load())
+            else:
+                state = None
+
             _LOG.debug("Passing message to rule %s", rule.name)
             try:
                 rule(
                     chat_id,
                     effective_message,
                     is_edited=edited_message is not None,
-                    state=rule_state.state,
+                    state=state,
                 )
             except Exception as e:
                 _LOG.error("Rule threw an exception", exc_info=e)
+            else:
+                if state_storage is not None:
+                    asyncio.run(state_storage.store(state))
 
     telegram.handle_updates(_on_update)
 
 
-def _load_state(rule: rules.Rule[S]) -> S:
-    # TODO: load state
-    return rule.initial_state()
+def _load_state_storage(rule: rules.Rule[S | None]) -> StateStorage[S] | None:
+    initial_state = rule.initial_state()
+    if initial_state is None:
+        return None
+
+    return asyncio.run(memory_storage.load(initial_state=initial_state))
 
 
 def _init_rules(config_dir: str) -> List[RuleState]:
@@ -69,7 +86,7 @@ def _init_rules(config_dir: str) -> List[RuleState]:
         rules.SlashRule(config_dir),
         rules.SmartypantsRule(config_dir, secrets=secrets),  # type: ignore
     ]
-    return [RuleState(rule, _load_state(rule)) for rule in initialized_rules]
+    return [RuleState(rule, _load_state_storage(rule)) for rule in initialized_rules]
 
 
 def _setup_logging():
