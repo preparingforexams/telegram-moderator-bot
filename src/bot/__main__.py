@@ -48,8 +48,10 @@ def _handle_updates(rule_list: list[RuleState]) -> None:
             state_storage = rule_state.state_storage
             if state_storage is not None:
                 state = asyncio.run(state_storage.load())
+                old_state = state.model_copy(deep=True)
             else:
                 state = None
+                old_state = None
 
             _LOG.debug("Passing message to rule %s", rule.name)
             try:
@@ -62,7 +64,7 @@ def _handle_updates(rule_list: list[RuleState]) -> None:
             except Exception as e:
                 _LOG.error("Rule threw an exception", exc_info=e)
             else:
-                if state_storage is not None:
+                if state_storage is not None and old_state != state:
                     asyncio.run(state_storage.store(state))
 
     telegram.handle_updates(_on_update)
