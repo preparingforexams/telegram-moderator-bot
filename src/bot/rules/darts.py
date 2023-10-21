@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import logging
-from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from os import path
 from typing import Dict, List, Optional
 
 import yaml
+from pydantic import BaseModel
 from zoneinfo import ZoneInfo
 
 from bot import telegram
@@ -70,13 +70,30 @@ class _Config:
         )
 
 
-class DartsRule(Rule[None]):
+class LastDarts(BaseModel):
+    dart_time_by_user_id: dict[int, datetime] = {}
+
+
+class DartsState(BaseModel):
+    last_darts_by_chat_id: dict[int, LastDarts] = {}
+
+    def get_last_dart(self, *, chat_id: int, user_id: int) -> datetime | None:
+        last_darts = self.last_darts_by_chat_id.get(chat_id, LastDarts())
+        return last_darts.dart_time_by_user_id.get(user_id)
+
+    def put_dart(self, *, chat_id: int, user_id: int, time: datetime) -> None:
+        last_darts = self.last_darts_by_chat_id.get(chat_id)
+        if last_darts is None:
+            last_darts = LastDarts()
+            self.last_darts_by_chat_id[chat_id] = last_darts
+
+        last_darts.dart_time_by_user_id[user_id] = time
+
+
+class DartsRule(Rule[DartsState]):
     name = "darts"
 
     def __init__(self, config_dir: str):
-        self._last_dart_by_user_id_by_chat_id: Dict[
-            int, Dict[int, datetime]
-        ] = defaultdict(lambda: {})
         self._config = self._load_config(config_dir)
 
     @staticmethod
@@ -94,8 +111,8 @@ class DartsRule(Rule[None]):
 
         return _Config.from_dict(config_dict)
 
-    def initial_state(self) -> None:
-        pass
+    def initial_state(self) -> DartsState:
+        return DartsState()
 
     def __call__(
         self,
@@ -103,7 +120,7 @@ class DartsRule(Rule[None]):
         message: dict,
         is_edited: bool,
         *,
-        state: None,
+        state: DartsState,
     ) -> None:
         config = self._config.config_by_chat_id.get(chat_id)
         if not config:
@@ -127,9 +144,8 @@ class DartsRule(Rule[None]):
         user_id = user["id"]
 
         message_time = datetime.fromtimestamp(message["date"], tz=timezone.utc)
-        last_dart_by_user_id = self._last_dart_by_user_id_by_chat_id[chat_id]
-        last_dart_time = last_dart_by_user_id.get(user_id)
-        last_dart_by_user_id[user_id] = message_time
+        last_dart_time = state.get_last_dart(chat_id=chat_id, user_id=user_id)
+        state.put_dart(chat_id=chat_id, user_id=user_id, time=message_time)
 
         if not last_dart_time:
             _LOG.debug(
