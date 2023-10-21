@@ -40,6 +40,8 @@ spec:
           env:
             - name: CONFIG_DIR
               value: /config
+            - name: DEBUG_MODE
+              value: "true"
             - name: STATE_NAME_PREFIX
               value: {{ .Release.Name }}-state-
             - name: STATE_NAMESPACE
