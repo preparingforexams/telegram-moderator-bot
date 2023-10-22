@@ -29,8 +29,8 @@ class RuleState(Generic[S]):
     state_storage: StateStorage[S] | None  # type: ignore[type-var]
 
 
-def _handle_updates(rule_list: list[RuleState]) -> None:
-    def _on_update(update: dict):
+async def _handle_updates(rule_list: list[RuleState]) -> None:
+    async def _on_update(update: dict):
         message = update.get("message")
         edited_message = update.get("edited_message")
 
@@ -44,10 +44,9 @@ def _handle_updates(rule_list: list[RuleState]) -> None:
         for rule_state in rule_list:
             rule = rule_state.rule
             _LOG.debug("Loading state for rule %s", rule.name)
-            # TODO: run in async context
             state_storage = rule_state.state_storage
             if state_storage is not None:
-                state = asyncio.run(state_storage.load())
+                state = await state_storage.load()
                 old_state = state.model_copy(deep=True)
             else:
                 state = None
@@ -55,9 +54,9 @@ def _handle_updates(rule_list: list[RuleState]) -> None:
 
             _LOG.debug("Passing message to rule %s", rule.name)
             try:
-                rule(
-                    chat_id,
-                    effective_message,
+                await rule(
+                    chat_id=chat_id,
+                    message=effective_message,
                     is_edited=edited_message is not None,
                     state=state,
                 )
@@ -65,12 +64,12 @@ def _handle_updates(rule_list: list[RuleState]) -> None:
                 _LOG.error("Rule threw an exception", exc_info=e)
             else:
                 if state_storage is not None and old_state != state:
-                    asyncio.run(state_storage.store(state))
+                    await state_storage.store(state)
 
-    telegram.handle_updates(_on_update)
+    await telegram.handle_updates(_on_update)
 
 
-def _load_state_storage(rule: rules.Rule[S | None]) -> StateStorage[S] | None:
+async def _load_state_storage(rule: rules.Rule[S | None]) -> StateStorage[S] | None:
     initial_state = rule.initial_state()
     if initial_state is None:
         return None
@@ -78,7 +77,7 @@ def _load_state_storage(rule: rules.Rule[S | None]) -> StateStorage[S] | None:
     if os.getenv("DEBUG_MODE"):
         from bs_state.implementation import memory_storage
 
-        load_storage = memory_storage.load(initial_state=initial_state)
+        return await memory_storage.load(initial_state=initial_state)
     else:
         name_prefix = os.getenv("STATE_NAME_PREFIX")
         namespace = os.getenv("STATE_NAMESPACE")
@@ -88,16 +87,14 @@ def _load_state_storage(rule: rules.Rule[S | None]) -> StateStorage[S] | None:
 
         name = f"{name_prefix}{rule.name}"
 
-        load_storage = config_map_storage.load(
+        return await config_map_storage.load(
             initial_state=initial_state,
             namespace=namespace,
             config_map_name=name,
         )
 
-    return asyncio.run(load_storage)
 
-
-def _init_rules(config_dir: str) -> List[RuleState]:
+async def _init_rules(config_dir: str) -> List[RuleState]:
     secrets = os.environ
     initialized_rules = [
         rules.DartsRule(config_dir),
@@ -107,7 +104,9 @@ def _init_rules(config_dir: str) -> List[RuleState]:
         rules.SlashRule(config_dir),
         rules.SmartypantsRule(config_dir, secrets=secrets),  # type: ignore
     ]
-    return [RuleState(rule, _load_state_storage(rule)) for rule in initialized_rules]
+    return [
+        RuleState(rule, await _load_state_storage(rule)) for rule in initialized_rules
+    ]
 
 
 def _setup_logging():
@@ -127,6 +126,11 @@ def _setup_sentry():
         dsn,
         release=version,
     )
+
+
+async def _run_telegram_bot():
+    rule_states = await _init_rules(_CONFIG_DIRECTORY or "config")
+    await _handle_updates(rule_states)
 
 
 def main() -> None:
@@ -157,8 +161,7 @@ def main() -> None:
         )
         subscriber.subscribe()
     else:
-        rule_states = _init_rules(_CONFIG_DIRECTORY or "config")
-        _handle_updates(rule_states)
+        asyncio.run(_run_telegram_bot())
 
 
 if __name__ == "__main__":

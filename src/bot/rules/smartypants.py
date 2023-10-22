@@ -56,12 +56,12 @@ class SmartypantsRule(Rule[None]):
     def initial_state(self) -> None:
         pass
 
-    def __call__(
+    async def __call__(
         self,
+        *,
         chat_id: int,
         message: dict,
         is_edited: bool,
-        *,
         state: None,
     ) -> None:
         if chat_id not in self.config.enabled_chat_ids:

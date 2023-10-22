@@ -33,14 +33,14 @@ class SlashRule(Rule):
     def initial_state(self) -> None:
         pass
 
-    def __call__(
+    async def __call__(
         self,
+        *,
         chat_id: int,
         message: dict,
         is_edited: bool,
-        *,
         state: None,
-    ):
+    ) -> None:
         if not self._is_enabled(chat_id):
             _LOG.debug("Not enabled in %d", chat_id)
             return
@@ -49,7 +49,7 @@ class SlashRule(Rule):
 
         if text and self._is_plain_command(text):
             _LOG.info("Detected plain command. Deleting...")
-            telegram.delete_message(message)
+            await telegram.delete_message(message)
 
     def _is_enabled(self, chat_id: int) -> bool:
         return chat_id in self.config

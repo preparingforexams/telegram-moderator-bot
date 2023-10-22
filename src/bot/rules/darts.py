@@ -1,10 +1,8 @@
-from __future__ import annotations
-
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from os import path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Self
 
 import yaml
 from pydantic import BaseModel
@@ -34,11 +32,11 @@ class _ChatConfig:
             return local_last.day != local_now.day
 
     @classmethod
-    def from_dict(cls, config_dict: dict) -> _ChatConfig:
+    def from_dict(cls, config_dict: dict) -> Self:
         emojis = config_dict.get("emojis", [])
         cooldown_dict = config_dict.get("cooldown", None)
         if cooldown_dict is None:
-            return _ChatConfig(emojis, None)
+            return cls(emojis, None)
 
         if not cooldown_dict:
             raise ValueError("Not cooldown specified")
@@ -50,7 +48,7 @@ class _ChatConfig:
             seconds=cooldown_dict.get("seconds", 0),
         )
 
-        return _ChatConfig(
+        return cls(
             emojis=emojis,
             cooldown=cooldown,
         )
@@ -61,11 +59,11 @@ class _Config:
     config_by_chat_id: Dict[int, _ChatConfig]
 
     @classmethod
-    def from_dict(cls, config_dict: dict) -> _Config:
+    def from_dict(cls, config_dict: dict) -> Self:
         config_by_chat_id = {
             key: _ChatConfig.from_dict(value) for key, value in config_dict.items()
         }
-        return _Config(
+        return cls(
             config_by_chat_id=config_by_chat_id,
         )
 
@@ -114,12 +112,12 @@ class DartsRule(Rule[DartsState]):
     def initial_state(self) -> DartsState:
         return DartsState()
 
-    def __call__(
+    async def __call__(
         self,
+        *,
         chat_id: int,
         message: dict,
         is_edited: bool,
-        *,
         state: DartsState,
     ) -> None:
         config = self._config.config_by_chat_id.get(chat_id)
@@ -158,4 +156,4 @@ class DartsRule(Rule[DartsState]):
             return
 
         _LOG.info("Deleting message from user %s", username)
-        telegram.delete_message(message)
+        await telegram.delete_message(message)

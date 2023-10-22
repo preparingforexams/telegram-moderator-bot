@@ -17,12 +17,12 @@ class Rule(ABC, Generic[S]):
         pass
 
     @abstractmethod
-    def __call__(
+    async def __call__(
         self,
+        *,
         chat_id: int,
         message: dict,
         is_edited: bool,
-        *,
         state: S,
     ) -> None:
         pass

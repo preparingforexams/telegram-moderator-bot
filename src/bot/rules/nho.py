@@ -48,12 +48,12 @@ class NhoRule(Rule):
     def initial_state(self) -> None:
         pass
 
-    def __call__(
+    async def __call__(
         self,
+        *,
         chat_id: int,
         message: dict,
         is_edited: bool,
-        *,
         state: None,
     ) -> None:
         if chat_id not in self._config.enabled_chat_ids:
@@ -63,5 +63,5 @@ class NhoRule(Rule):
         sender = message["from"]
         if sender["is_bot"] and sender["username"] == "@nnnnnnnnhhhhhhhhbot":
             _LOG.info("Trying to delete bot message")
-            if not telegram.delete_message(message):
+            if not await telegram.delete_message(message):
                 _LOG.warning("Failed to prevent our horrible fate")

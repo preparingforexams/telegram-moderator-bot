@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from dataclasses import dataclass
@@ -40,14 +41,14 @@ class SkyRule(Rule):
     def initial_state(self) -> None:
         pass
 
-    def __call__(
+    async def __call__(
         self,
+        *,
         chat_id: int,
         message: dict,
         is_edited: bool,
-        *,
         state: None,
-    ):
+    ) -> None:
         if chat_id not in self.config.enabled_chats:
             _LOG.debug("Not enabled in chat %d", chat_id)
             return
@@ -58,19 +59,24 @@ class SkyRule(Rule):
             return
 
         largest_photo_id = self._find_largest_photo(photos)
+        loop = asyncio.get_running_loop()
         with NamedTemporaryFile("w+b") as file:
-            telegram.download_file(largest_photo_id, file)
+            await telegram.download_file(largest_photo_id, file)
             file.seek(0)
-            detected, sky_file = self.detector.detect(file)
+            detected, sky_file = await loop.run_in_executor(
+                None,
+                self.detector.detect,
+                file,
+            )
 
         try:
             for action in self.config.actions:
                 if action == Action.insight:
-                    self._give_insight(chat_id, message, sky_file)
+                    await self._give_insight(chat_id, message, sky_file)
                 elif not detected and action == Action.reply:
-                    self._reply(chat_id, message)
+                    await self._reply(chat_id, message)
                 elif not detected and action == Action.delete:
-                    self._delete(chat_id, message)
+                    await self._delete(chat_id, message)
         finally:
             if sky_file:
                 os.remove(sky_file)
@@ -85,22 +91,22 @@ class SkyRule(Rule):
         return max_photo["file_id"]
 
     @staticmethod
-    def _reply(chat_id: int, message: dict):
-        telegram.send_message(
+    async def _reply(chat_id: int, message: dict):
+        await telegram.send_message(
             chat_id,
             text="Ich glaube da war nicht genug Himmel!",
             reply_to_message_id=message["message_id"],
         )
 
     @staticmethod
-    def _delete(chat_id: int, message: dict):
-        if not telegram.delete_message(message):
+    async def _delete(chat_id: int, message: dict):
+        if not await telegram.delete_message(message):
             _LOG.error("Could not delete message in chat %d", chat_id)
 
     @staticmethod
-    def _give_insight(chat_id: int, message: dict, image_path: str):
+    async def _give_insight(chat_id: int, message: dict, image_path: str):
         with open(image_path, "rb") as f:
-            telegram.send_image(
+            await telegram.send_image(
                 chat_id,
                 f,
                 "Das hier habe ich an Himmel gefunden...",

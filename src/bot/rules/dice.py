@@ -46,14 +46,14 @@ class DiceRule(Rule):
     def initial_state(self) -> None:
         pass
 
-    def __call__(
+    async def __call__(
         self,
+        *,
         chat_id: int,
         message: dict,
         is_edited: bool,
-        *,
         state: None,
-    ):
+    ) -> None:
         allowed_emojis = self.config.allowed_emojis.get(chat_id)
         if allowed_emojis is None:
             _LOG.debug("Not enabled in %d", chat_id)
@@ -65,12 +65,12 @@ class DiceRule(Rule):
             _LOG.info("Detected forbidden dice %s.", dice["emoji"])
             if self.config.forward_to:
                 _LOG.debug("Forwarding messages")
-                self._forward(message, to_chat_id=self.config.forward_to)
-            telegram.delete_message(message)
+                await self._forward(message, to_chat_id=self.config.forward_to)
+            await telegram.delete_message(message)
 
-    def _forward(self, message: dict, to_chat_id: int):
+    async def _forward(self, message: dict, to_chat_id: int):
         reply_message: Optional[dict] = message.get("reply_to_message")
         if reply_message:
             _LOG.debug("Forwarding replied-to message as well")
-            telegram.forward_message(to_chat_id=to_chat_id, message=reply_message)
-        telegram.forward_message(to_chat_id=to_chat_id, message=message)
+            await telegram.forward_message(to_chat_id=to_chat_id, message=reply_message)
+        await telegram.forward_message(to_chat_id=to_chat_id, message=message)

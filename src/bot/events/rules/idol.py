@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 from dataclasses import dataclass
 
@@ -41,9 +42,11 @@ class IdolRule(EventRule):
             _LOG.debug("No idols found, skipping")
             return True
 
-        telegram.send_message(
-            chat_id=data.chat_id,
-            text="Balek?!",
-            reply_to_message_id=data.message_id,
+        asyncio.run(
+            telegram.send_message(
+                chat_id=data.chat_id,
+                text="Balek?!",
+                reply_to_message_id=data.message_id,
+            ),
         )
         return True

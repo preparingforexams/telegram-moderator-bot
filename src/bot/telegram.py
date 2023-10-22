@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import IO, Callable, List, Optional, Union
+from typing import IO, Awaitable, BinaryIO, Callable, List, Optional, Union
 
 import httpx
 
@@ -9,7 +9,7 @@ _LOG = logging.getLogger(__name__)
 
 _API_KEY = os.getenv("TELEGRAM_API_KEY")
 
-_session = httpx.Client()
+_session = httpx.AsyncClient()
 
 
 def is_configured() -> bool:
@@ -28,7 +28,7 @@ def _get_actual_body(response: httpx.Response) -> Union[dict, list]:
     raise ValueError(f"Body was not ok! {json.dumps(body)}")
 
 
-def _request_updates(last_update_id: Optional[int]) -> List[dict]:
+async def _request_updates(last_update_id: Optional[int]) -> List[dict]:
     body: Optional[dict] = None
     if last_update_id:
         body = {
@@ -36,7 +36,7 @@ def _request_updates(last_update_id: Optional[int]) -> List[dict]:
             "timeout": 10,
         }
     try:
-        response = _session.post(
+        response = await _session.post(
             _build_url("getUpdates"),
             json=body,
             timeout=15,
@@ -51,23 +51,23 @@ def _request_updates(last_update_id: Optional[int]) -> List[dict]:
     return _get_actual_body(response)  # type: ignore
 
 
-def handle_updates(handler: Callable[[dict], None]):
+async def handle_updates(handler: Callable[[dict], Awaitable[None]]):
     last_update_id: Optional[int] = None
     while True:
-        updates = _request_updates(last_update_id)
+        updates = await _request_updates(last_update_id)
         try:
             for update in updates:
-                handler(update)
+                await handler(update)
                 last_update_id = update["update_id"]
         except Exception as e:
             _LOG.error("Could not handle update", exc_info=e)
 
 
-def send_message(
+async def send_message(
     chat_id: int, text: str, reply_to_message_id: Optional[int] = None
 ) -> dict:
     return _get_actual_body(  # type: ignore
-        _session.post(
+        await _session.post(
             _build_url("sendMessage"),
             json={
                 "text": text,
@@ -79,13 +79,13 @@ def send_message(
     )
 
 
-def delete_message(message: dict) -> bool:
+async def delete_message(message: dict) -> bool:
     chat_id = message["chat"]["id"]
     message_id = message["message_id"]
 
     try:
         _get_actual_body(
-            _session.post(
+            await _session.post(
                 _build_url("deleteMessage"),
                 json={
                     "chat_id": chat_id,
@@ -100,9 +100,9 @@ def delete_message(message: dict) -> bool:
         return True
 
 
-def download_file(file_id: str, file: IO[bytes]):
+async def download_file(file_id: str, file: IO[bytes]):
     body: dict = _get_actual_body(  # type: ignore
-        _session.post(
+        await _session.post(
             _build_url("getFile"),
             json={
                 "file_id": file_id,
@@ -112,20 +112,20 @@ def download_file(file_id: str, file: IO[bytes]):
 
     file_path = body["file_path"]
     url = f"https://api.telegram.org/file/bot{_API_KEY}/{file_path}"
-    response = _session.get(url)
+    response = await _session.get(url)
     response.raise_for_status()
     for chunk in response.iter_bytes(chunk_size=8192):
         file.write(chunk)
 
 
-def send_image(
+async def send_image(
     chat_id: int,
-    image_file: IO[bytes],
+    image_file: BinaryIO,
     caption: Optional[str] = None,
     reply_to_message_id: Optional[int] = None,
 ) -> dict:
     return _get_actual_body(  # type:ignore
-        _session.post(
+        await _session.post(
             _build_url("sendPhoto"),
             files={
                 "photo": image_file,
@@ -139,12 +139,12 @@ def send_image(
     )
 
 
-def forward_message(
+async def forward_message(
     to_chat_id: int,
     message: dict,
 ) -> dict:
     return _get_actual_body(  # type: ignore
-        _session.post(
+        await _session.post(
             _build_url("forwardMessage"),
             json={
                 "chat_id": to_chat_id,
