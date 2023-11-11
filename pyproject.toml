@@ -28,7 +28,7 @@ sentry-sdk = "^1.12.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.0.0"
-mypy = "~1.6"
+mypy = "~1.7"
 pytest = "^7.1.2"
 ruff = "0.1.5"
 types-pyyaml = "^6.0.12.2"
