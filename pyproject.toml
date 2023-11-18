@@ -15,7 +15,7 @@ priority = "explicit"
 
 [tool.poetry.dependencies]
 bs-state = { version = "0.1.0", source = "internal", extras = ["kubernetes"] }
-certifi = "2023.7.22"
+certifi = "2023.11.17"
 google-cloud-pubsub = "^2.13.11"
 httpx = "^0.25.0"
 numpy = "^1.24.1"
