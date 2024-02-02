@@ -204,13 +204,13 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "bs-state"
-version = "0.1.2"
+version = "0.2.0"
 description = "State"
 optional = false
-python-versions = ">=3.11,<3.12"
+python-versions = ">=3.11,<3.13"
 files = [
-    {file = "bs_state-0.1.2-py3-none-any.whl", hash = "sha256:415f42ac2a9d958731ca7f51be5a1be6cf8405101c0f92a20ce3699ade6824bd"},
-    {file = "bs_state-0.1.2.tar.gz", hash = "sha256:8bf46e08e744d5a55a76d1b0180175d67c7219194ae87d5a2c689f9c786cd7f8"},
+    {file = "bs_state-0.2.0-py3-none-any.whl", hash = "sha256:d9770e54e31076f144dd4ff1c8cbe049faeb2c69c648b90b6ad8bfd96b590c36"},
+    {file = "bs_state-0.2.0.tar.gz", hash = "sha256:53db239f5dff54df2b3bb100dfa3312bc7a9179bddf2fcd2c05a842b02dd9815"},
 ]
 
 [package.dependencies]
@@ -1619,4 +1619,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "1eb98dd1662bb991a59457261bc4d5ace52736082382ee802709ca7840c282c0"
+content-hash = "281f1782e5043a7ae29ac44352e5035b09e96312cfafdfabe2f4e56ed7f223c3"
