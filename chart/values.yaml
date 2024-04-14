@@ -1,0 +1,4 @@
+appVersion: latest
+image: ghcr.io/preparingforexams/telegram-moderator-bot
+telegram:
+  adminUserId: "133399998"

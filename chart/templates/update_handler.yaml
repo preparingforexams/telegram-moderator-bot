@@ -45,6 +45,8 @@ spec:
               value: {{ .Release.Name }}-state-
             - name: STATE_NAMESPACE
               value: {{ .Release.Namespace }}
+            - name: ADMIN_USER_ID
+              value: "{{ .Values.telegram.adminUserId }}"
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-secrets

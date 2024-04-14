@@ -28,28 +28,15 @@ jobs:
       push-image: ${{ github.ref_name == github.event.repository.default_branch }}
 
   deploy:
-    runs-on: born-prep
-    container: ghcr.io/bjoernpetersen/helm:2.1.0
-    needs: build-container-image
-    if: success() && github.ref_name == github.event.repository.default_branch
-    concurrency: production
+    runs-on: ubuntu-latest
+    if: github.ref_name == github.event.repository.default_branch
+    needs:
+      - build-container-image
     steps:
       - uses: actions/checkout@v4
-      - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v4
-      - name: Substitute environment variables in values.yaml
-        env:
-          ADMIN_USER_ID: ${{ secrets.ADMIN_USER_ID }}
-          GSA_JSON: ${{ secrets.GSA_JSON }}
-          OPENAI_TOKEN: ${{ secrets.OPENAI_TOKEN }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          IMAGE_NAME: "ghcr.io/${{ env.GITHUB_REPOSITORY_OWNER_PART_SLUG }}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}"
-        run: "envsubst < values.yaml > values_sub.yaml && mv values_sub.yaml values.yaml"
-      - uses: WyriHaximus/github-action-helm3@v4
         with:
-          exec: helm upgrade moderator . --install --namespace=moderator-bot --atomic
-          kubeconfig: '${{ secrets.BORN_KUBECONFIG_RAW }}'
+          fetch-depth: 0
+      - run: git push origin main:release
 
   clean:
     concurrency: cleanup
