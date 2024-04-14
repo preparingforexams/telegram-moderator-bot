@@ -22,7 +22,7 @@ spec:
             secretName: {{ .Release.Name }}-gcp-secrets
       containers:
         - name: app
-          image: {{ .Values.image }}
+          image: {{ .Values.image }}:{{ .Values.appVersion }}
           args:
             - --subscribe-horoscopes
           resources:
