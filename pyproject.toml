@@ -15,7 +15,7 @@ priority = "explicit"
 
 [tool.poetry.dependencies]
 bs-state = { tag = "v0.2.0", extras = ["kubernetes"], git = "https://github.com/BlindfoldedSurgery/bs-state.git" }
-certifi = "2024.2.2"
+certifi = "2024.6.2"
 google-cloud-pubsub = "^2.13.11"
 httpx = "^0.27.0"
 numpy = "^1.24.1"
