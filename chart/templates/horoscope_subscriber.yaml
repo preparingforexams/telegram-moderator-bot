@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-horoscope-sub
 spec:
+  revisionHistoryLimit: 2
   strategy:
    type: Recreate
   selector:
