@@ -29,7 +29,7 @@ sentry-sdk = "^2.0.0"
 [tool.poetry.group.dev.dependencies]
 mypy = "~1.10"
 pytest = "^8.0.0"
-ruff = "0.5.2"
+ruff = "0.5.3"
 types-pyyaml = "^6.0.12.2"
 
 [build-system]
