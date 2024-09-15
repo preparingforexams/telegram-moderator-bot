@@ -2,6 +2,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from os import path
+from pathlib import Path
 from typing import Dict, List, Optional, Self
 
 import yaml
@@ -91,12 +92,12 @@ class DartsState(BaseModel):
 class DartsRule(Rule[DartsState]):
     name = "darts"
 
-    def __init__(self, config_dir: str):
+    def __init__(self, config_dir: Path):
         self._config = self._load_config(config_dir)
 
     @staticmethod
-    def _load_config(config_dir: str) -> _Config:
-        file_path = path.join(config_dir, "darts.yaml")
+    def _load_config(config_dir: Path) -> _Config:
+        file_path = path.join(str(config_dir), "darts.yaml")
         if not path.isfile(file_path):
             _LOG.warning("No config found")
             return _Config({})

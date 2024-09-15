@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Generic, List, TypeVar
 
 import sentry_sdk
@@ -94,7 +95,7 @@ async def _load_state_storage(rule: rules.Rule[S | None]) -> StateStorage[S] | N
         )
 
 
-async def _init_rules(config_dir: str) -> List[RuleState]:
+async def _init_rules(config_dir: Path) -> List[RuleState]:
     secrets = os.environ
     initialized_rules = [
         rules.DartsRule(config_dir),
@@ -129,7 +130,7 @@ def _setup_sentry():
 
 
 async def _run_telegram_bot():
-    rule_states = await _init_rules(_CONFIG_DIRECTORY or "config")
+    rule_states = await _init_rules(Path(_CONFIG_DIRECTORY or "config"))
     await _handle_updates(rule_states)
 
 

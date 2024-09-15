@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
 from os import path
+from pathlib import Path
 from typing import Self
 
 import yaml
@@ -35,12 +36,12 @@ class SmartypantsRule(Rule[None]):
     def name(self) -> str:
         return "smartypants"
 
-    def __init__(self, config_dir: str, secrets: dict[str, str]):
+    def __init__(self, config_dir: Path, secrets: dict[str, str]):
         self.config = self._load_config(config_dir, secrets)
 
     @staticmethod
-    def _load_config(config_dir: str, secrets: dict[str, str]) -> _Config:
-        file_path = path.join(config_dir, "smartypants.yaml")
+    def _load_config(config_dir: Path, secrets: dict[str, str]) -> _Config:
+        file_path = path.join(str(config_dir), "smartypants.yaml")
         if not path.isfile(file_path):
             _LOG.warning("No config found")
             return _Config.disabled()

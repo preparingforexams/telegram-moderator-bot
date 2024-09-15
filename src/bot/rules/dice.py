@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
 from os import path
+from pathlib import Path
 from typing import Dict, Optional, Set
 
 import yaml
@@ -22,12 +23,12 @@ class DiceRule(Rule):
     def name(self) -> str:
         return "casino"
 
-    def __init__(self, config_dir: str):
+    def __init__(self, config_dir: Path):
         self.config = self._load_config(config_dir)
 
     @staticmethod
-    def _load_config(config_dir: str) -> Config:
-        file_path = path.join(config_dir, "dice.yaml")
+    def _load_config(config_dir: Path) -> Config:
+        file_path = path.join(str(config_dir), "dice.yaml")
         if not path.isfile(file_path):
             _LOG.warning("No config found")
             return Config(forward_to=None, allowed_emojis={})

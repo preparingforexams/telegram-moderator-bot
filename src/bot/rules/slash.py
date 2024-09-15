@@ -1,6 +1,7 @@
 import logging
 import re
 from os import path
+from pathlib import Path
 from typing import Optional, Set
 
 from bot import telegram
@@ -14,12 +15,12 @@ class SlashRule(Rule):
     def name(self) -> str:
         return "command_spam"
 
-    def __init__(self, config_dir: str):
+    def __init__(self, config_dir: Path):
         self.config = self._load_config(config_dir)
 
     @staticmethod
-    def _load_config(config_dir: str) -> Set[int]:
-        file_path = path.join(config_dir, "slash.txt")
+    def _load_config(config_dir: Path) -> Set[int]:
+        file_path = path.join(str(config_dir), "slash.txt")
 
         if not path.isfile(file_path):
             _LOG.warning("No config found")

@@ -4,6 +4,7 @@ import os
 from dataclasses import dataclass
 from enum import Enum
 from os import path
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import List, Optional, Set
 
@@ -34,7 +35,7 @@ class SkyRule(Rule):
     def name(self) -> str:
         return "sky"
 
-    def __init__(self, config_dir: str):
+    def __init__(self, config_dir: Path):
         self.config = self._load_config(config_dir)
         self.detector = SkyDetector()
 
@@ -114,8 +115,8 @@ class SkyRule(Rule):
             )
 
     @staticmethod
-    def _load_config(config_dir: str) -> Config:
-        file_path = path.join(config_dir, "sky.yaml")
+    def _load_config(config_dir: Path) -> Config:
+        file_path = path.join(str(config_dir), "sky.yaml")
 
         if not path.isfile(file_path):
             _LOG.warning("No config found")
