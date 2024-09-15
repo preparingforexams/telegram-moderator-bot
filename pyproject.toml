@@ -57,7 +57,18 @@ init_typed = true
 
 [tool.ruff.lint]
 extend-select = [
+    #"COM812",
+    "FURB",
     "I001",
+    "LOG",
+    "G",
+    "PTH",
+    "Q",
+    "UP",
+]
+ignore = [
+    # redundant-open-modes
+    "UP015",
 ]
 
 [tool.ruff.lint.isort]

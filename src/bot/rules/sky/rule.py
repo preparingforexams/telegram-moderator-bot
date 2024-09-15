@@ -8,10 +8,10 @@ from tempfile import NamedTemporaryFile
 from typing import List, Optional, Set
 
 from bot import telegram
+from bot.config import load_config_dict_from_yaml
 from bot.rules.rule import Rule
 
 from .detector import SkyDetector
-from bot.config import load_config_dict_from_yaml
 
 _LOG = logging.getLogger(__name__)
 
