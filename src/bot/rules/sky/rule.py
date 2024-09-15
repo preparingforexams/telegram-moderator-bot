@@ -3,17 +3,15 @@ import logging
 import os
 from dataclasses import dataclass
 from enum import Enum
-from os import path
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import List, Optional, Set
-
-import yaml
 
 from bot import telegram
 from bot.rules.rule import Rule
 
 from .detector import SkyDetector
+from bot.config import load_config_dict_from_yaml
 
 _LOG = logging.getLogger(__name__)
 
@@ -116,16 +114,16 @@ class SkyRule(Rule):
 
     @staticmethod
     def _load_config(config_dir: Path) -> Config:
-        file_path = path.join(str(config_dir), "sky.yaml")
+        config_dict = load_config_dict_from_yaml(config_dir / "sky.yaml")
 
-        if not path.isfile(file_path):
-            _LOG.warning("No config found")
-            return Config(enabled_chats=set(), actions=[])
-
-        with open(file_path, "r") as f:
-            raw = yaml.load(f, yaml.Loader)
+        if not config_dict:
+            _LOG.warning("Config is empty or missing.")
+            return Config(
+                enabled_chats=set(),
+                actions=[],
+            )
 
         return Config(
-            enabled_chats=set(raw["enabledChats"]),
-            actions=[Action(it) for it in raw["actions"]],
+            enabled_chats=set(config_dict["enabledChats"]),
+            actions=[Action(it) for it in config_dict["actions"]],
         )
