@@ -1,6 +1,5 @@
 import logging
 import re
-from os import path
 from pathlib import Path
 from typing import Optional, Set
 
@@ -20,13 +19,13 @@ class SlashRule(Rule):
 
     @staticmethod
     def _load_config(config_dir: Path) -> Set[int]:
-        file_path = path.join(str(config_dir), "slash.txt")
+        file_path = config_dir / "slash.txt"
 
-        if not path.isfile(file_path):
+        if not file_path.is_file():
             _LOG.warning("No config found")
             return set()
 
-        with open(file_path, "r") as f:
+        with file_path.open("r") as f:
             lines = f.readlines()
 
         return {int(line.strip()) for line in lines}
