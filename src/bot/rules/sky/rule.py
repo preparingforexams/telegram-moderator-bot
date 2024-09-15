@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import os
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -78,7 +77,7 @@ class SkyRule(Rule):
                     await self._delete(chat_id, message)
         finally:
             if sky_file:
-                os.remove(sky_file)
+                sky_file.unlink()
 
     @staticmethod
     def _find_largest_photo(photos: List[dict]) -> str:
@@ -103,8 +102,8 @@ class SkyRule(Rule):
             _LOG.error("Could not delete message in chat %d", chat_id)
 
     @staticmethod
-    async def _give_insight(chat_id: int, message: dict, image_path: str):
-        with open(image_path, "rb") as f:
+    async def _give_insight(chat_id: int, message: dict, image_path: Path):
+        with image_path.open("rb") as f:
             await telegram.send_image(
                 chat_id,
                 f,

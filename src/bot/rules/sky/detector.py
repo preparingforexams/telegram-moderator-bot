@@ -1,5 +1,6 @@
 import logging
 import tempfile
+from pathlib import Path
 from typing import IO, Tuple
 
 import cv2
@@ -185,7 +186,7 @@ def mask(b, image, color=[0, 0, 255]):
     )
 
 
-def detect_sky(image) -> Tuple[bool, str]:
+def detect_sky(image) -> tuple[bool, Path]:
     bopt = calculate_border_optimal(image)
 
     detected = True
@@ -202,11 +203,11 @@ def detect_sky(image) -> Tuple[bool, str]:
     (_, filename) = tempfile.mkstemp(suffix=".png")
     cv2.imwrite(filename, image)
 
-    return detected, filename
+    return detected, Path(filename)
 
 
 class SkyDetector:
     @staticmethod
-    def detect(image_file: IO[bytes]) -> Tuple[bool, str]:
+    def detect(image_file: IO[bytes]) -> Tuple[bool, Path]:
         image = cv2.imread(image_file.name)
         return detect_sky(image)
