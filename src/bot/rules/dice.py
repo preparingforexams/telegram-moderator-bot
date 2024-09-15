@@ -1,12 +1,10 @@
 import logging
 from dataclasses import dataclass
-from os import path
 from pathlib import Path
 from typing import Dict, Optional, Set
 
-import yaml
-
 from bot import telegram
+from bot.config import load_config_dict_from_yaml
 from bot.rules.rule import Rule
 
 _LOG = logging.getLogger(__name__)
@@ -28,19 +26,20 @@ class DiceRule(Rule):
 
     @staticmethod
     def _load_config(config_dir: Path) -> Config:
-        file_path = path.join(str(config_dir), "dice.yaml")
-        if not path.isfile(file_path):
-            _LOG.warning("No config found")
-            return Config(forward_to=None, allowed_emojis={})
+        config_dict = load_config_dict_from_yaml(config_dir / "dice.yaml")
 
-        with open(file_path, "r") as f:
-            raw: dict = yaml.load(f, yaml.Loader)
+        if not config_dict:
+            _LOG.warning("Config file is empty or missing.")
+            return Config(
+                forward_to=None,
+                allowed_emojis={},
+            )
 
         return Config(
-            forward_to=raw.get("forwardTo"),
+            forward_to=config_dict.get("forwardTo"),
             allowed_emojis={
                 chat_id: set(emojis)
-                for chat_id, emojis in raw.get("allowedEmojis", {}).items()
+                for chat_id, emojis in config_dict.get("allowedEmojis", {}).items()
             },
         )
 

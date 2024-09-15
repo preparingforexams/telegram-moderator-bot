@@ -29,7 +29,7 @@ class LemonRule(Rule):
         config_dict = load_config_dict_from_yaml(config_dir / "lemons.yaml")
 
         if not config_dict:
-            _LOG.warning("Config is empty")
+            _LOG.warning("Config is empty or missing")
             return _Config([])
 
         return _Config.from_dict(config_dict)

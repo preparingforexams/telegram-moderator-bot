@@ -1,15 +1,14 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from os import path
 from pathlib import Path
 from typing import Dict, List, Optional, Self
 
-import yaml
 from pydantic import BaseModel
 from zoneinfo import ZoneInfo
 
 from bot import telegram
+from bot.config import load_config_dict_from_yaml
 from bot.rules.rule import Rule
 
 _LOG = logging.getLogger(__name__)
@@ -97,16 +96,11 @@ class DartsRule(Rule[DartsState]):
 
     @staticmethod
     def _load_config(config_dir: Path) -> _Config:
-        file_path = path.join(str(config_dir), "darts.yaml")
-        if not path.isfile(file_path):
-            _LOG.warning("No config found")
-            return _Config({})
+        config_dict = load_config_dict_from_yaml(config_dir / "darts.yaml")
 
-        with open(file_path, "r", encoding="utf-8") as f:
-            config_dict = yaml.load(f, yaml.Loader)
-            if not config_dict:
-                _LOG.warning("Config is empty")
-                return _Config({})
+        if not config_dict:
+            _LOG.warning("Config is empty or missing")
+            return _Config({})
 
         return _Config.from_dict(config_dict)
 
