@@ -1,3 +1,4 @@
+import json
 import logging
 from dataclasses import dataclass
 from os import path
@@ -57,6 +58,13 @@ class LemonRule(Rule):
         if chat_id not in self._config.enabled_chat_ids:
             return
         _LOG.debug("Enabled in chat %d", chat_id)
+
+        if photo := message.get("photo"):
+            await telegram.send_message(
+                chat_id=chat_id,
+                text=json.dumps(photo, indent=4),
+                reply_to_message_id=message.get("message_id"),
+            )
 
         if (dice := message.get("dice")) and dice["emoji"] == "🎰":
             dice_value = dice["value"]
