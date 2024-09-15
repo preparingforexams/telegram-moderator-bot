@@ -1,9 +1,8 @@
-from __future__ import annotations
-
+import json
 import logging
 from dataclasses import dataclass
 from os import path
-from typing import List
+from typing import List, Self
 
 import yaml
 
@@ -18,18 +17,18 @@ class _Config:
     enabled_chat_ids: List[int]
 
     @classmethod
-    def from_dict(cls, config_dict: dict) -> _Config:
+    def from_dict(cls, config_dict: dict) -> Self:
         return cls(
             enabled_chat_ids=config_dict["enabledChats"],
         )
 
 
-class NhoRule(Rule):
-    name = "nho"
+class LemonRule(Rule):
+    name = "lemons"
 
     @staticmethod
     def _load_config(config_dir: str) -> _Config:
-        file_path = path.join(config_dir, "nho.yaml")
+        file_path = path.join(config_dir, "lemons.yaml")
         if not path.isfile(file_path):
             _LOG.warning("No config found")
             return _Config([])
@@ -60,8 +59,16 @@ class NhoRule(Rule):
             return
         _LOG.debug("Enabled in chat %d", chat_id)
 
-        sender = message["from"]
-        if sender["is_bot"] and sender["username"] == "@nnnnnnnnhhhhhhhhbot":
-            _LOG.info("Trying to delete bot message")
-            if not await telegram.delete_message(message):
-                _LOG.warning("Failed to prevent our horrible fate")
+        if (dice := message.get("dice")) and dice["emoji"] == "🎰":
+            dice_value = dice["value"]
+
+            # 43 is lemon, lemon, lemon
+            if dice_value != 43:
+                return
+
+            _LOG.info("Found matching message")
+            await telegram.send_existing_image(
+                chat_id=chat_id,
+                file_id="AgACAgIAAxkBAAIMIWbm08i7ATRGgOQSO7foaZsrdx9VAAIXtTEbCDQ5SVcm8KvdjhlzAQADAgADeAADNgQ",
+                reply_to_message_id=message["message_id"],
+            )

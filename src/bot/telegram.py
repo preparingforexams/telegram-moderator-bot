@@ -139,6 +139,24 @@ async def send_image(
     )
 
 
+async def send_existing_image(
+    *,
+    chat_id: int,
+    file_id: str,
+    reply_to_message_id: int | None = None,
+) -> dict:
+    return _get_actual_body(  # type:ignore
+        await _session.post(
+            _build_url("sendPhoto"),
+            json={
+                "chat_id": chat_id,
+                "reply_to_message_id": reply_to_message_id,
+                "photo": file_id,
+            },
+        )
+    )
+
+
 async def forward_message(
     to_chat_id: int,
     message: dict,

@@ -9,9 +9,10 @@ data:
       -1001725586482:
         - 🎰
 
-  nho.yaml: |
+  lemons.yaml: |
     enabledChats:
       - -1001725586482
+      - -1001587782443
 
   slash.txt: |
     133399998

@@ -1,6 +1,6 @@
 from .darts import DartsRule
 from .dice import DiceRule
-from .nho import NhoRule
+from .lemons import LemonRule
 from .rule import Rule
 from .sky import SkyRule
 from .slash import SlashRule

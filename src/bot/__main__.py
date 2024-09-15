@@ -99,7 +99,7 @@ async def _init_rules(config_dir: str) -> List[RuleState]:
     initialized_rules = [
         rules.DartsRule(config_dir),
         rules.DiceRule(config_dir),
-        rules.NhoRule(config_dir),
+        rules.LemonRule(config_dir),
         rules.SkyRule(config_dir),
         rules.SlashRule(config_dir),
         rules.SmartypantsRule(config_dir, secrets=secrets),  # type: ignore
