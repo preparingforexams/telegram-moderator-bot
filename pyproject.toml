@@ -14,7 +14,7 @@ url = "https://pypi.bjoernpetersen.net"
 priority = "explicit"
 
 [tool.poetry.dependencies]
-bs-state = { version = "0.2.1", extras = ["kubernetes"], source = "internal" }
+bs-state = { version = "0.2.2", extras = ["kubernetes"], source = "internal" }
 certifi = "2024.8.30"
 google-cloud-pubsub = "^2.13.11"
 httpx = "^0.27.0"

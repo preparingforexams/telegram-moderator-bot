@@ -188,22 +188,22 @@ tests-mypy = ["mypy (>=1.11.1)", "pytest-mypy-plugins"]
 
 [[package]]
 name = "bs-state"
-version = "0.2.1"
+version = "0.2.2"
 description = "State"
 optional = false
 python-versions = ">=3.11,<3.13"
 files = [
-    {file = "bs_state-0.2.1-py3-none-any.whl", hash = "sha256:f8388bac767395f093bc9eb0eeb14c4335af0a1e8c9936bdcb3bf8d4b771eb92"},
-    {file = "bs_state-0.2.1.tar.gz", hash = "sha256:a0d14a384d291e7a6be6750213df7e8b7baef48afe9ce32ca12f56521ae6a166"},
+    {file = "bs_state-0.2.2-py3-none-any.whl", hash = "sha256:52a615e22d73a88d3c2cceb2d82402628412a08be97aa3d390dfc9de52139972"},
+    {file = "bs_state-0.2.2.tar.gz", hash = "sha256:18ccebc345e66cdb35b2bf335d5f8c7f76b25005bbb03ab78e6401aa80f5bbb2"},
 ]
 
 [package.dependencies]
-kubernetes_asyncio = {version = ">=30.0.0,<31.0.0", optional = true, markers = "extra == \"kubernetes\""}
+kubernetes_asyncio = {version = ">=31.0.0,<32.0.0", optional = true, markers = "extra == \"kubernetes\""}
 pydantic = ">=2.4.1,<3.0.0"
 
 [package.extras]
 file = ["aiofile (>=3.8.8,<4.0.0)"]
-kubernetes = ["kubernetes_asyncio (>=30.0.0,<31.0.0)"]
+kubernetes = ["kubernetes_asyncio (>=31.0.0,<32.0.0)"]
 
 [package.source]
 type = "legacy"
@@ -688,13 +688,13 @@ files = [
 
 [[package]]
 name = "kubernetes-asyncio"
-version = "30.3.1"
+version = "31.1.0"
 description = "Kubernetes asynchronous python client"
 optional = false
 python-versions = "*"
 files = [
-    {file = "kubernetes_asyncio-30.3.1-py3-none-any.whl", hash = "sha256:9c65f79aef0a0c36149c562cec036dd21466dc64dca2ebd36b02d8ae2954d897"},
-    {file = "kubernetes_asyncio-30.3.1.tar.gz", hash = "sha256:53efb902e89149a9720e00b45f964b87ea7cb8ec4110110c574d028817da1764"},
+    {file = "kubernetes_asyncio-31.1.0-py3-none-any.whl", hash = "sha256:76898fea5dee601b209fefeae4ecee2fb20bfe3ebf872b5ff37c96230fbda6cc"},
+    {file = "kubernetes_asyncio-31.1.0.tar.gz", hash = "sha256:00128a96eb0284de0cbee53bd2fe044593f2e1547c48d09901cddf9258adfd88"},
 ]
 
 [package.dependencies]
@@ -1581,4 +1581,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "0732016583dfb47ec36cbe94e6b871486f4b039df7ccd4f3f04127301c049a0d"
+content-hash = "49f01649decd1f9b157ad777520ad7b5831a3c118aeb913f9cc0cb890eeecbcd"
