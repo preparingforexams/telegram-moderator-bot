@@ -1,11 +1,11 @@
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Self
+from typing import Self
+from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel
-from zoneinfo import ZoneInfo
 
 from bot import telegram
 from bot.config import load_config_dict_from_yaml
@@ -16,8 +16,8 @@ _LOG = logging.getLogger(__name__)
 
 @dataclass
 class _ChatConfig:
-    emojis: List[str]
-    cooldown: Optional[timedelta]
+    emojis: list[str]
+    cooldown: timedelta | None
 
     def is_cooled_down(self, last: datetime, now: datetime) -> bool:
         cooldown = self.cooldown
@@ -56,7 +56,7 @@ class _ChatConfig:
 
 @dataclass
 class _Config:
-    config_by_chat_id: Dict[int, _ChatConfig]
+    config_by_chat_id: dict[int, _ChatConfig]
 
     @classmethod
     def from_dict(cls, config_dict: dict) -> Self:
@@ -136,7 +136,7 @@ class DartsRule(Rule[DartsState]):
         username = user["first_name"]
         user_id = user["id"]
 
-        message_time = datetime.fromtimestamp(message["date"], tz=timezone.utc)
+        message_time = datetime.fromtimestamp(message["date"], tz=UTC)
         last_dart_time = state.get_last_dart(chat_id=chat_id, user_id=user_id)
         state.put_dart(chat_id=chat_id, user_id=user_id, time=message_time)
 

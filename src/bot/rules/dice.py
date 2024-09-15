@@ -1,7 +1,6 @@
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional, Set
 
 from bot import telegram
 from bot.config import load_config_dict_from_yaml
@@ -12,8 +11,8 @@ _LOG = logging.getLogger(__name__)
 
 @dataclass
 class Config:
-    forward_to: Optional[int]
-    allowed_emojis: Dict[int, Set[str]]
+    forward_to: int | None
+    allowed_emojis: dict[int, set[str]]
 
 
 class DiceRule(Rule):
@@ -59,7 +58,7 @@ class DiceRule(Rule):
             _LOG.debug("Not enabled in %d", chat_id)
             return
 
-        dice: Optional[dict] = message.get("dice")
+        dice: dict | None = message.get("dice")
 
         if dice and dice["emoji"] not in allowed_emojis:
             _LOG.info("Detected forbidden dice %s.", dice["emoji"])
@@ -69,7 +68,7 @@ class DiceRule(Rule):
             await telegram.delete_message(message)
 
     async def _forward(self, message: dict, to_chat_id: int):
-        reply_message: Optional[dict] = message.get("reply_to_message")
+        reply_message: dict | None = message.get("reply_to_message")
         if reply_message:
             _LOG.debug("Forwarding replied-to message as well")
             await telegram.forward_message(to_chat_id=to_chat_id, message=reply_message)

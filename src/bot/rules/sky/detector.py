@@ -1,7 +1,7 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import IO, Tuple
+from typing import IO
 
 import cv2
 import numpy as np
@@ -208,6 +208,6 @@ def detect_sky(image) -> tuple[bool, Path]:
 
 class SkyDetector:
     @staticmethod
-    def detect(image_file: IO[bytes]) -> Tuple[bool, Path]:
+    def detect(image_file: IO[bytes]) -> tuple[bool, Path]:
         image = cv2.imread(image_file.name)
         return detect_sky(image)

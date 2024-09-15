@@ -1,7 +1,6 @@
 import logging
 import re
 from pathlib import Path
-from typing import Optional, Set
 
 from bot import telegram
 from bot.rules import Rule
@@ -18,7 +17,7 @@ class SlashRule(Rule):
         self.config = self._load_config(config_dir)
 
     @staticmethod
-    def _load_config(config_dir: Path) -> Set[int]:
+    def _load_config(config_dir: Path) -> set[int]:
         file_path = config_dir / "slash.txt"
 
         if not file_path.is_file():
@@ -45,7 +44,7 @@ class SlashRule(Rule):
             _LOG.debug("Not enabled in %d", chat_id)
             return
 
-        text: Optional[str] = message.get("text")
+        text: str | None = message.get("text")
 
         if text and self._is_plain_command(text):
             _LOG.info("Detected plain command. Deleting...")

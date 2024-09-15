@@ -4,7 +4,7 @@ import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Generic, List, TypeVar
+from typing import Generic, TypeVar
 
 import sentry_sdk
 from bs_state import StateStorage
@@ -95,7 +95,7 @@ async def _load_state_storage(rule: rules.Rule[S | None]) -> StateStorage[S] | N
         )
 
 
-async def _init_rules(config_dir: Path) -> List[RuleState]:
+async def _init_rules(config_dir: Path) -> list[RuleState]:
     secrets = os.environ
     initialized_rules = [
         rules.DartsRule(config_dir),

@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Union
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 
-S = TypeVar("S", bound=Union[BaseModel, None])
+S = TypeVar("S", bound=BaseModel | None)
 
 
 class Rule(ABC, Generic[S]):

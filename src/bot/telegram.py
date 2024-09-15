@@ -1,7 +1,8 @@
 import json
 import logging
 import os
-from typing import IO, Awaitable, BinaryIO, Callable, List, Optional, Union
+from collections.abc import Awaitable, Callable
+from typing import IO, BinaryIO
 
 import httpx
 
@@ -20,7 +21,7 @@ def _build_url(method: str) -> str:
     return f"https://api.telegram.org/bot{_API_KEY}/{method}"
 
 
-def _get_actual_body(response: httpx.Response) -> Union[dict, list]:
+def _get_actual_body(response: httpx.Response) -> dict | list:
     response.raise_for_status()
     body = response.json()
     if body.get("ok"):
@@ -28,8 +29,8 @@ def _get_actual_body(response: httpx.Response) -> Union[dict, list]:
     raise ValueError(f"Body was not ok! {json.dumps(body)}")
 
 
-async def _request_updates(last_update_id: Optional[int]) -> List[dict]:
-    body: Optional[dict] = None
+async def _request_updates(last_update_id: int | None) -> list[dict]:
+    body: dict | None = None
     if last_update_id:
         body = {
             "offset": last_update_id + 1,
@@ -52,7 +53,7 @@ async def _request_updates(last_update_id: Optional[int]) -> List[dict]:
 
 
 async def handle_updates(handler: Callable[[dict], Awaitable[None]]):
-    last_update_id: Optional[int] = None
+    last_update_id: int | None = None
     while True:
         updates = await _request_updates(last_update_id)
         try:
@@ -64,7 +65,7 @@ async def handle_updates(handler: Callable[[dict], Awaitable[None]]):
 
 
 async def send_message(
-    chat_id: int, text: str, reply_to_message_id: Optional[int] = None
+    chat_id: int, text: str, reply_to_message_id: int | None = None
 ) -> dict:
     return _get_actual_body(  # type: ignore
         await _session.post(
@@ -121,8 +122,8 @@ async def download_file(file_id: str, file: IO[bytes]):
 async def send_image(
     chat_id: int,
     image_file: BinaryIO,
-    caption: Optional[str] = None,
-    reply_to_message_id: Optional[int] = None,
+    caption: str | None = None,
+    reply_to_message_id: int | None = None,
 ) -> dict:
     return _get_actual_body(  # type:ignore
         await _session.post(

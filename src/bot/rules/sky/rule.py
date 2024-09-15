@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import List, Optional, Set
 
 from bot import telegram
 from bot.config import load_config_dict_from_yaml
@@ -23,8 +22,8 @@ class Action(Enum):
 
 @dataclass
 class Config:
-    enabled_chats: Set[int]
-    actions: List[Action]
+    enabled_chats: set[int]
+    actions: list[Action]
 
 
 class SkyRule(Rule):
@@ -51,7 +50,7 @@ class SkyRule(Rule):
             _LOG.debug("Not enabled in chat %d", chat_id)
             return
 
-        photos: Optional[List[dict]] = message.get("photo")
+        photos: list[dict] | None = message.get("photo")
         if not photos:
             _LOG.debug("Message has no photo")
             return
@@ -80,7 +79,7 @@ class SkyRule(Rule):
                 sky_file.unlink()
 
     @staticmethod
-    def _find_largest_photo(photos: List[dict]) -> str:
+    def _find_largest_photo(photos: list[dict]) -> str:
         # We can only download up to 20 MB
         available_photos = (
             photo for photo in photos if photo["file_size"] < 20_000_000
