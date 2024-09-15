@@ -1,8 +1,7 @@
-import json
 import logging
 from dataclasses import dataclass
 from os import path
-from typing import List, Self
+from typing import Self
 
 import yaml
 
@@ -14,7 +13,7 @@ _LOG = logging.getLogger(__name__)
 
 @dataclass
 class _Config:
-    enabled_chat_ids: List[int]
+    enabled_chat_ids: list[int]
 
     @classmethod
     def from_dict(cls, config_dict: dict) -> Self:
@@ -69,6 +68,6 @@ class LemonRule(Rule):
             _LOG.info("Found matching message")
             await telegram.send_existing_image(
                 chat_id=chat_id,
-                file_id="AgACAgIAAxkBAAIMIWbm08i7ATRGgOQSO7foaZsrdx9VAAIXtTEbCDQ5SVcm8KvdjhlzAQADAgADeAADNgQ",
+                file_id="AgACAgIAAxkBAANCZubaqbSkbSosatNb5P1AMlLE1uEAAhe1MRsINDlJu4Nokvml5S8BAAMCAAN4AAM2BA",
                 reply_to_message_id=message["message_id"],
             )
