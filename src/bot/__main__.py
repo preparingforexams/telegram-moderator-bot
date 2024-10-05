@@ -41,7 +41,7 @@ async def _handle_updates(rule_list: list[RuleState]) -> None:
 
         for rule_state in rule_list:
             rule = rule_state.rule
-            _LOG.debug("Loading state for rule %s", rule.name)
+            _LOG.debug("Loading state for rule %s", rule.name())
             state_storage = rule_state.state_storage
             if state_storage is not None:
                 state = await state_storage.load()
@@ -50,7 +50,7 @@ async def _handle_updates(rule_list: list[RuleState]) -> None:
                 state = None
                 old_state = None
 
-            _LOG.debug("Passing message to rule %s", rule.name)
+            _LOG.debug("Passing message to rule %s", rule.name())
             try:
                 await rule(
                     chat_id=chat_id,
@@ -84,7 +84,7 @@ async def _load_state_storage(
         name_prefix = state_config.secret_name_prefix
         namespace = state_config.secret_namespace
 
-        name = f"{name_prefix}{rule.name}"
+        name = f"{name_prefix}{rule.name()}"
 
         return await config_map_storage.load(
             initial_state=initial_state,
