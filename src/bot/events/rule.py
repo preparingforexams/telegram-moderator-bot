@@ -1,12 +1,14 @@
 import abc
 
+import telegram
+
 
 class EventRule(abc.ABC):
-    @property
+    @classmethod
     @abc.abstractmethod
-    def name(self) -> str:
+    def name(cls) -> str:
         pass
 
     @abc.abstractmethod
-    def __call__(self, event: dict) -> bool:
+    async def __call__(self, bot: telegram.Bot, event: dict) -> bool:
         pass

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 
+import telegram
 from google.cloud.pubsub_v1 import SubscriberClient
 from google.cloud.pubsub_v1.subscriber.message import Message
 
@@ -13,12 +15,17 @@ _LOG = logging.getLogger(__name__)
 
 
 class EventSubscriber:
-    def __init__(self, config: SubscriberConfig, rule: EventRule) -> None:
+    def __init__(
+        self, bot: telegram.Bot, config: SubscriberConfig, rule: EventRule
+    ) -> None:
         self._rule = rule
         self._config = config
+        self.bot = bot
         self.client = SubscriberClient()
 
     def subscribe(self):
+        loop = asyncio.get_event_loop()
+
         def _handle_message(message: Message):
             _LOG.debug("Received a Pub/Sub message")
             try:
@@ -29,7 +36,8 @@ class EventSubscriber:
                 return
 
             try:
-                result = self._rule(decoded)
+                task = loop.create_task(self._rule(self.bot, decoded))
+                result = loop.run_until_complete(task)
             except Exception as e:
                 _LOG.error("Rule failed to handle message, requeuing", exc_info=e)
                 message.nack_with_response().result()
@@ -40,4 +48,11 @@ class EventSubscriber:
                     _LOG.warning("Rule result indicated failure, requeuing")
                     message.nack_with_response().result()
 
-        self.client.subscribe(self._config.subscription_name, _handle_message).result()
+        try:
+            future = self.client.subscribe(
+                self._config.subscription_name,
+                _handle_message,
+            )
+            future.result()
+        finally:
+            loop.close()

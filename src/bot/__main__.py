@@ -3,6 +3,7 @@ import logging
 import sys
 
 import sentry_sdk
+import telegram
 from bs_config import Env
 
 from bot import rules
@@ -100,6 +101,7 @@ def main() -> None:
             sys.exit(1)
 
         subscriber = EventSubscriber(
+            bot=telegram.Bot(config.telegram_token),
             config=subscriber_config,
             rule=handler,
         )

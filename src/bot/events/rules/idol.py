@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import asyncio
 import logging
 from dataclasses import dataclass
 from pathlib import Path
 
-from bot import telegram
+import telegram
+
 from bot.events.rule import EventRule
 
 _LOG = logging.getLogger(__name__)
@@ -29,12 +29,14 @@ class HoroscopeEvent:
 
 
 class IdolRule(EventRule):
-    name = "idol"
+    @classmethod
+    def name(cls) -> str:
+        return "idol"
 
     def __init__(self, config_dir: Path):
         pass
 
-    def __call__(self, event: dict) -> bool:
+    async def __call__(self, bot: telegram.Bot, event: dict) -> bool:
         data = HoroscopeEvent.deserialize(event)
 
         _LOG.debug("Looking at horoscope %s", data.horoscope)
@@ -43,11 +45,10 @@ class IdolRule(EventRule):
             _LOG.debug("No idols found, skipping")
             return True
 
-        asyncio.run(
-            telegram.send_message(
-                chat_id=data.chat_id,
-                text="Balek?!",
-                reply_to_message_id=data.message_id,
-            ),
+        await bot.send_message(
+            chat_id=data.chat_id,
+            text="Balek?!",
+            reply_to_message_id=data.message_id,
         )
+
         return True
