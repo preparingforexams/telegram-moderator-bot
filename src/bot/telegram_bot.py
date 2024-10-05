@@ -77,7 +77,7 @@ class TelegramBot:
             try:
                 await rule(
                     chat_id=chat_id,
-                    message=message.to_dict(),
+                    message=message,
                     is_edited=message_is_edited,
                     state=state,
                 )

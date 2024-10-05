@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
 from pydantic import BaseModel
+from telegram import Message
 
 S = TypeVar("S", bound=BaseModel | None)
 
@@ -21,7 +22,7 @@ class Rule(ABC, Generic[S]):
         self,
         *,
         chat_id: int,
-        message: dict,
+        message: Message,
         is_edited: bool,
         state: S,
     ) -> None:

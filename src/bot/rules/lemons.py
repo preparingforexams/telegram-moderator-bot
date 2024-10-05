@@ -3,9 +3,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Self
 
+import telegram
 from bs_config import Env
 
-from bot import telegram
 from bot.config import load_config_dict_from_yaml
 from bot.rules.rule import Rule
 
@@ -48,7 +48,7 @@ class LemonRule(Rule):
         self,
         *,
         chat_id: int,
-        message: dict,
+        message: telegram.Message,
         is_edited: bool,
         state: None,
     ) -> None:
@@ -56,16 +56,14 @@ class LemonRule(Rule):
             return
         _LOG.debug("Enabled in chat %d", chat_id)
 
-        if (dice := message.get("dice")) and dice["emoji"] == "🎰":
-            dice_value = dice["value"]
+        if (dice := message.dice) and dice.emoji == "🎰":
+            dice_value = dice.value
 
             # 43 is lemon, lemon, lemon
             if dice_value != 43:
                 return
 
             _LOG.info("Found matching message")
-            await telegram.send_existing_image(
-                chat_id=chat_id,
-                file_id="AgACAgIAAxkBAANCZubaqbSkbSosatNb5P1AMlLE1uEAAhe1MRsINDlJu4Nokvml5S8BAAMCAAN4AAM2BA",
-                reply_to_message_id=message["message_id"],
+            await message.reply_photo(
+                photo="AgACAgIAAxkBAANCZubaqbSkbSosatNb5P1AMlLE1uEAAhe1MRsINDlJu4Nokvml5S8BAAMCAAN4AAM2BA",
             )

@@ -1,14 +1,13 @@
 import logging
 from dataclasses import dataclass
-from io import BytesIO
 from pathlib import Path
 from typing import Self, cast
 
 import httpx
 import openai
+import telegram
 from bs_config import Env
 
-from bot import telegram
 from bot.config import load_config_dict_from_yaml
 from bot.rules import Rule
 
@@ -68,7 +67,7 @@ class SmartypantsRule(Rule[None]):
         self,
         *,
         chat_id: int,
-        message: dict,
+        message: telegram.Message,
         is_edited: bool,
         state: None,
     ) -> None:
@@ -80,8 +79,7 @@ class SmartypantsRule(Rule[None]):
             _LOG.debug("Ignoring edited message")
             return
 
-        message_id = message["message_id"]
-        text: str | None = message.get("text")
+        text: str | None = message.text
         if not text:
             _LOG.debug("Ignoring non-text message")
             return
@@ -92,19 +90,25 @@ class SmartypantsRule(Rule[None]):
 
         message_parts = text.split(" ", maxsplit=1)
         if len(message_parts) < 2:
-            await telegram.send_message(
-                chat_id=chat_id,
+            await message.reply_text(
                 text="Usage example: /draw a horse playing a saxophone",
-                reply_to_message_id=message_id,
             )
         else:
             await self._draw(
+                bot=message.get_bot(),
                 chat_id=chat_id,
                 prompt=message_parts[1],
-                message_id=message_id,
+                message_id=message.message_id,
             )
 
-    async def _draw(self, *, chat_id: int, message_id: int, prompt: str) -> None:
+    async def _draw(
+        self,
+        *,
+        bot: telegram.Bot,
+        chat_id: int,
+        message_id: int,
+        prompt: str,
+    ) -> None:
         async with httpx.AsyncClient() as http_client:
             async with openai.AsyncClient(
                 api_key=self.config.openai_token,
@@ -136,8 +140,11 @@ class SmartypantsRule(Rule[None]):
                     return
 
                 _LOG.info("Sending image as response")
-                await telegram.send_image(
+                await bot.send_photo(
                     chat_id=chat_id,
-                    reply_to_message_id=message_id,
-                    image_file=BytesIO(download_response.content),
+                    reply_parameters=telegram.ReplyParameters(
+                        message_id=message_id,
+                        allow_sending_without_reply=True,
+                    ),
+                    photo=download_response.content,
                 )

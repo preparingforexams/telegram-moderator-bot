@@ -2,9 +2,9 @@ import logging
 import re
 from pathlib import Path
 
+import telegram
 from bs_config import Env
 
-from bot import telegram
 from bot.rules import Rule
 
 _LOG = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ class SlashRule(Rule):
         self,
         *,
         chat_id: int,
-        message: dict,
+        message: telegram.Message,
         is_edited: bool,
         state: None,
     ) -> None:
@@ -46,11 +46,11 @@ class SlashRule(Rule):
             _LOG.debug("Not enabled in %d", chat_id)
             return
 
-        text: str | None = message.get("text")
+        text = message.text
 
         if text and self._is_plain_command(text):
             _LOG.info("Detected plain command. Deleting...")
-            await telegram.delete_message(message)
+            await message.delete()
 
     def _is_enabled(self, chat_id: int) -> bool:
         return chat_id in self.config

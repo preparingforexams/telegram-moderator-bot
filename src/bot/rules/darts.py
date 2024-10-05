@@ -1,14 +1,14 @@
 import logging
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Self
+from typing import Self, cast
 from zoneinfo import ZoneInfo
 
+import telegram
 from bs_config import Env
 from pydantic import BaseModel
 
-from bot import telegram
 from bot.config import load_config_dict_from_yaml
 from bot.rules.rule import Rule
 
@@ -114,7 +114,7 @@ class DartsRule(Rule[DartsState]):
         self,
         *,
         chat_id: int,
-        message: dict,
+        message: telegram.Message,
         is_edited: bool,
         state: DartsState,
     ) -> None:
@@ -127,25 +127,27 @@ class DartsRule(Rule[DartsState]):
             _LOG.info("Skipping edited message")
             return
 
-        dice = message.get("dice")
-        if not dice:
+        dice = message.dice
+        if dice is None:
             return
 
-        if dice["emoji"] not in config.emojis:
-            _LOG.debug("Dice emoji %s was not in %s", dice["emoji"], config.emojis)
+        if dice.emoji not in config.emojis:
+            _LOG.debug("Dice emoji %s was not in %s", dice.emoji, config.emojis)
             return
 
-        user = message["from"]
-        username = user["first_name"]
-        user_id = user["id"]
+        user = cast(telegram.User, message.from_user)
+        username = user.first_name
+        user_id = user.id
 
-        message_time = datetime.fromtimestamp(message["date"], tz=UTC)
+        message_time = message.date
         last_dart_time = state.get_last_dart(chat_id=chat_id, user_id=user_id)
         state.put_dart(chat_id=chat_id, user_id=user_id, time=message_time)
 
         if not last_dart_time:
             _LOG.debug(
-                "No known last message from user %s in chat %d", username, chat_id
+                "No known last message from user %s in chat %d",
+                username,
+                chat_id,
             )
             return
 
@@ -154,4 +156,4 @@ class DartsRule(Rule[DartsState]):
             return
 
         _LOG.info("Deleting message from user %s", username)
-        await telegram.delete_message(message)
+        await message.delete()
