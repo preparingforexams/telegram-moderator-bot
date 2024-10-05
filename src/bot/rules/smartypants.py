@@ -1,10 +1,14 @@
 import logging
 from dataclasses import dataclass
+from io import BytesIO
 from pathlib import Path
-from typing import Self
+from typing import Self, cast
 
+import httpx
+import openai
 from bs_config import Env
 
+from bot import telegram
 from bot.config import load_config_dict_from_yaml
 from bot.rules import Rule
 
@@ -72,4 +76,68 @@ class SmartypantsRule(Rule[None]):
             _LOG.debug("Disabled in chat %d", chat_id)
             return
 
-        _LOG.warning("Not implemented yet")
+        if is_edited:
+            _LOG.debug("Ignoring edited message")
+            return
+
+        message_id = message["message_id"]
+        text: str | None = message.get("text")
+        if not text:
+            _LOG.debug("Ignoring non-text message")
+            return
+
+        if not text.startswith("/draw"):
+            _LOG.debug("Ignoring non-draw message")
+            return
+
+        message_parts = text.split(" ", maxsplit=1)
+        if len(message_parts) < 2:
+            await telegram.send_message(
+                chat_id=chat_id,
+                text="Usage example: /draw a horse playing a saxophone",
+                reply_to_message_id=message_id,
+            )
+        else:
+            await self._draw(
+                chat_id=chat_id,
+                prompt=message_parts[1],
+                message_id=message_id,
+            )
+
+    async def _draw(self, *, chat_id: int, message_id: int, prompt: str) -> None:
+        async with httpx.AsyncClient() as http_client:
+            async with openai.AsyncClient(
+                api_key=self.config.openai_token,
+                http_client=http_client,
+            ) as ai_client:
+                _LOG.info("Generating image with prompt %s", prompt)
+                ai_response = await ai_client.images.generate(
+                    prompt=prompt,
+                    model="dall-e-3",
+                    n=1,
+                    quality="hd",
+                    response_format="url",
+                    size="1024x1024",
+                )
+
+                image = ai_response.data[0]
+                image_url = cast(str, image.url)
+
+                _LOG.info("Downloading generated image")
+                download_response = await http_client.get(
+                    url=image_url,
+                )
+
+                if not download_response.is_success:
+                    _LOG.error(
+                        "Could not download OpenAI image (response code %d)",
+                        download_response.status_code,
+                    )
+                    return
+
+                _LOG.info("Sending image as response")
+                await telegram.send_image(
+                    chat_id=chat_id,
+                    reply_to_message_id=message_id,
+                    image_file=BytesIO(download_response.content),
+                )
