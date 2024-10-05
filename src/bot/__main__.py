@@ -7,7 +7,6 @@ import telegram
 from bs_config import Env
 
 from bot import rules
-from bot import telegram as legacy_telegram
 from bot.config import Config
 from bot.events import rules as event_rule
 from bot.events.rule import EventRule
@@ -79,7 +78,6 @@ def main() -> None:
     _setup_logging()
 
     config = _load_config()
-    legacy_telegram.initialize(config.telegram_token)
 
     _setup_sentry(config)
 
