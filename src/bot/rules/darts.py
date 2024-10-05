@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Self
 from zoneinfo import ZoneInfo
 
+from bs_config import Env
 from pydantic import BaseModel
 
 from bot import telegram
@@ -89,9 +90,11 @@ class DartsState(BaseModel):
 
 
 class DartsRule(Rule[DartsState]):
-    name = "darts"
+    @classmethod
+    def name(cls) -> str:
+        return "darts"
 
-    def __init__(self, config_dir: Path):
+    def __init__(self, config_dir: Path, secrets_env: Env):
         self._config = self._load_config(config_dir)
 
     @staticmethod

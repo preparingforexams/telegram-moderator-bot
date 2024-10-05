@@ -7,9 +7,9 @@ S = TypeVar("S", bound=BaseModel | None)
 
 
 class Rule(ABC, Generic[S]):
-    @property
+    @classmethod
     @abstractmethod
-    def name(self) -> str:
+    def name(cls) -> str:
         pass
 
     @abstractmethod

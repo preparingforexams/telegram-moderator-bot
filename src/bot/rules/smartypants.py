@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Self
 
+from bs_config import Env
+
 from bot.config import load_config_dict_from_yaml
 from bot.rules import Rule
 
@@ -15,10 +17,14 @@ class _Config:
     openai_token: str
 
     @classmethod
-    def from_dict(cls, config_dict: dict) -> Self:
+    def from_dict(
+        cls,
+        config_dict: dict,
+        secrets_env: Env,
+    ) -> Self:
         return cls(
             enabled_chat_ids=config_dict["enabledChats"],
-            openai_token=config_dict["OPENAI_TOKEN"],
+            openai_token=secrets_env.get_string("OPENAI_TOKEN", required=True),
         )
 
     @classmethod
@@ -30,22 +36,26 @@ class _Config:
 
 
 class SmartypantsRule(Rule[None]):
-    @property
-    def name(self) -> str:
+    @classmethod
+    def name(cls) -> str:
         return "smartypants"
 
-    def __init__(self, config_dir: Path, secrets: dict[str, str]):
-        self.config = self._load_config(config_dir, secrets)
+    def __init__(self, config_dir: Path, secrets_env: Env):
+        self.config = self._load_config(config_dir, secrets_env)
 
     @staticmethod
-    def _load_config(config_dir: Path, secrets: dict[str, str]) -> _Config:
+    def _load_config(config_dir: Path, secret_envs: Env) -> _Config:
         config_dict = load_config_dict_from_yaml(config_dir / "smartypants.yaml")
 
         if not config_dict:
             _LOG.warning("Config is empty or missing")
             return _Config.disabled()
 
-        return _Config.from_dict({**secrets, **config_dict})
+        try:
+            return _Config.from_dict(config_dict, secret_envs)
+        except (KeyError, ValueError) as e:
+            _LOG.warning("Invalid or incomplete config", exc_info=e)
+            return _Config.disabled()
 
     def initial_state(self) -> None:
         pass

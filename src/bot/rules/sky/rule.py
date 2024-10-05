@@ -5,6 +5,8 @@ from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+from bs_config import Env
+
 from bot import telegram
 from bot.config import load_config_dict_from_yaml
 from bot.rules.rule import Rule
@@ -27,11 +29,11 @@ class Config:
 
 
 class SkyRule(Rule):
-    @property
-    def name(self) -> str:
+    @classmethod
+    def name(cls) -> str:
         return "sky"
 
-    def __init__(self, config_dir: Path):
+    def __init__(self, config_dir: Path, secret_env: Env):
         self.config = self._load_config(config_dir)
         self.detector = SkyDetector()
 

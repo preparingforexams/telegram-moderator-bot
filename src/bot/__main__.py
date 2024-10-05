@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import os
 import sys
 from dataclasses import dataclass
 from typing import Generic, TypeVar
@@ -96,15 +95,25 @@ async def _load_state_storage(
 
 async def _init_rules(config: Config) -> list[RuleState]:
     config_dir = config.config_dir
-    secrets = os.environ
-    initialized_rules = [
-        rules.DartsRule(config_dir),
-        rules.DiceRule(config_dir),
-        rules.LemonRule(config_dir),
-        rules.SkyRule(config_dir),
-        rules.SlashRule(config_dir),
-        rules.SmartypantsRule(config_dir, secrets=secrets),  # type: ignore
+    rule_base_env = config.rule_base_env
+
+    rule_classes = [
+        rules.DartsRule,
+        rules.DiceRule,
+        rules.LemonRule,
+        rules.SkyRule,
+        rules.SlashRule,
+        rules.SmartypantsRule,
     ]
+
+    initialized_rules = [
+        RuleClass(  # type: ignore[abstract]
+            config_dir,
+            rule_base_env.scoped(RuleClass.name().upper()),
+        )
+        for RuleClass in rule_classes
+    ]
+
     return [
         RuleState(rule, await _load_state_storage(config, rule))
         for rule in initialized_rules

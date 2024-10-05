@@ -2,6 +2,8 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 
+from bs_config import Env
+
 from bot import telegram
 from bot.config import load_config_dict_from_yaml
 from bot.rules.rule import Rule
@@ -16,11 +18,11 @@ class Config:
 
 
 class DiceRule(Rule):
-    @property
-    def name(self) -> str:
+    @classmethod
+    def name(cls) -> str:
         return "casino"
 
-    def __init__(self, config_dir: Path):
+    def __init__(self, config_dir: Path, secrets_env: Env):
         self.config = self._load_config(config_dir)
 
     @staticmethod

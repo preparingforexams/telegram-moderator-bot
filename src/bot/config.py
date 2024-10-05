@@ -59,7 +59,7 @@ class SubscriberConfig:
 class Config:
     app_version: str
     config_dir: Path
-    openai_token: str
+    rule_base_env: Env
     sentry_dsn: str | None
     state: StateConfig | None
     subscriber: SubscriberConfig | None
@@ -70,7 +70,7 @@ class Config:
         return cls(
             app_version=env.get_string("APP_VERSION", default="dirty"),
             config_dir=Path(env.get_string("CONFIG_DIR", default="config")),
-            openai_token=env.get_string("OPENAI_TOKEN", required=True),
+            rule_base_env=env.scoped("RULE_"),
             sentry_dsn=env.get_string("SENTRY_DSN"),
             state=StateConfig.from_env(env.scoped("STATE_")),
             subscriber=SubscriberConfig.from_env(env),

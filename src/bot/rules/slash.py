@@ -2,6 +2,8 @@ import logging
 import re
 from pathlib import Path
 
+from bs_config import Env
+
 from bot import telegram
 from bot.rules import Rule
 
@@ -9,11 +11,11 @@ _LOG = logging.getLogger(__name__)
 
 
 class SlashRule(Rule):
-    @property
-    def name(self) -> str:
+    @classmethod
+    def name(cls) -> str:
         return "command_spam"
 
-    def __init__(self, config_dir: Path):
+    def __init__(self, config_dir: Path, secrets_env: Env):
         self.config = self._load_config(config_dir)
 
     @staticmethod

@@ -45,3 +45,5 @@ spec:
                 name: {{ .Release.Name }}-gcp
             - secretRef:
                 name: {{ .Release.Name }}-secrets
+            - secretRef:
+                name: {{ .Release.Name }}-rule-secrets

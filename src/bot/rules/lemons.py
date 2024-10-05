@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Self
 
+from bs_config import Env
+
 from bot import telegram
 from bot.config import load_config_dict_from_yaml
 from bot.rules.rule import Rule
@@ -22,7 +24,9 @@ class _Config:
 
 
 class LemonRule(Rule):
-    name = "lemons"
+    @classmethod
+    def name(cls) -> str:
+        return "lemons"
 
     @staticmethod
     def _load_config(config_dir: Path) -> _Config:
@@ -34,7 +38,7 @@ class LemonRule(Rule):
 
         return _Config.from_dict(config_dict)
 
-    def __init__(self, config_dir: Path):
+    def __init__(self, config_dir: Path, secrets_env: Env):
         self._config = self._load_config(config_dir)
 
     def initial_state(self) -> None:
