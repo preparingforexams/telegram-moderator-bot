@@ -1,9 +1,11 @@
+import asyncio
 import logging
 import signal
-from typing import Any
+import sys
+from typing import Any, cast
 
 import telegram
-from telegram.ext import Application, MessageHandler, filters
+from telegram.ext import Application, MessageHandler, filters,Updater
 
 from bot.config import Config
 from bot.rule_state import RuleState
@@ -19,6 +21,7 @@ class TelegramBot:
 
     async def run(self) -> None:
         app = Application.builder().bot(self.bot).build()
+
         app.add_handler(
             MessageHandler(
                 filters=filters.ALL,
@@ -26,11 +29,29 @@ class TelegramBot:
             )
         )
 
-        _LOG.info("Running bot")
-        app.run_polling(
-            stop_signals=[signal.SIGTERM, signal.SIGINT],
-        )
-        _LOG.info("run_polling has returned")
+        async with app:
+            _LOG.info("Running bot")
+            await app.start()
+            updater = cast(Updater, app.updater)
+            await updater.start_polling()
+
+            finish_line = asyncio.Event()
+            loop = asyncio.get_running_loop()
+            for sig in [signal.SIGTERM, signal.SIGINT]:
+                loop.add_signal_handler(
+                    sig,
+                    lambda _: finish_line.set(),
+                )
+
+            _LOG.info("Waiting for exit signal")
+            await finish_line.wait()
+            _LOG.info("Exit signal received.")
+
+            _LOG.debug("Stopping updater")
+            await updater.stop()
+            _LOG.debug("Stopping application")
+            await app.stop()
+            _LOG.debug("Exiting app context manager")
 
     async def _on_message(self, update: telegram.Update, _: Any) -> None:
         message = update.message or update.edited_message
