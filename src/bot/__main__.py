@@ -109,7 +109,7 @@ async def _init_rules(config: Config) -> list[RuleState]:
     initialized_rules = [
         RuleClass(  # type: ignore[abstract]
             config_dir,
-            rule_base_env.scoped(RuleClass.name().upper()),
+            rule_base_env.scoped(f"{RuleClass.name().upper()}_"),
         )
         for RuleClass in rule_classes
     ]
