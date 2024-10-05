@@ -24,8 +24,6 @@ class EventSubscriber:
         self.client = SubscriberClient()
 
     def subscribe(self):
-        loop = asyncio.get_event_loop()
-
         def _handle_message(message: Message):
             _LOG.debug("Received a Pub/Sub message")
             try:
@@ -36,8 +34,7 @@ class EventSubscriber:
                 return
 
             try:
-                task = loop.create_task(self._rule(self.bot, decoded))
-                result = loop.run_until_complete(task)
+                result = asyncio.run(self._rule(self.bot, decoded))
             except Exception as e:
                 _LOG.error("Rule failed to handle message, requeuing", exc_info=e)
                 message.nack_with_response().result()
@@ -48,11 +45,8 @@ class EventSubscriber:
                     _LOG.warning("Rule result indicated failure, requeuing")
                     message.nack_with_response().result()
 
-        try:
-            future = self.client.subscribe(
-                self._config.subscription_name,
-                _handle_message,
-            )
-            future.result()
-        finally:
-            loop.close()
+        future = self.client.subscribe(
+            self._config.subscription_name,
+            _handle_message,
+        )
+        future.result()
