@@ -4,6 +4,7 @@ from collections.abc import Awaitable, Callable
 from typing import IO, BinaryIO
 
 import httpx
+from deprecated import deprecated
 
 _LOG = logging.getLogger(__name__)
 
@@ -52,6 +53,7 @@ async def _request_updates(last_update_id: int | None) -> list[dict]:
     return _get_actual_body(response)  # type: ignore
 
 
+@deprecated
 async def handle_updates(handler: Callable[[dict], Awaitable[None]]):
     last_update_id: int | None = None
     while True:
@@ -64,6 +66,7 @@ async def handle_updates(handler: Callable[[dict], Awaitable[None]]):
             _LOG.error("Could not handle update", exc_info=e)
 
 
+@deprecated
 async def send_message(
     chat_id: int, text: str, reply_to_message_id: int | None = None
 ) -> dict:
@@ -80,6 +83,7 @@ async def send_message(
     )
 
 
+@deprecated
 async def delete_message(message: dict) -> bool:
     chat_id = message["chat"]["id"]
     message_id = message["message_id"]
@@ -101,6 +105,7 @@ async def delete_message(message: dict) -> bool:
         return True
 
 
+@deprecated
 async def download_file(file_id: str, file: IO[bytes]):
     body: dict = _get_actual_body(  # type: ignore
         await _session.post(
@@ -119,6 +124,7 @@ async def download_file(file_id: str, file: IO[bytes]):
         file.write(chunk)
 
 
+@deprecated
 async def send_image(
     chat_id: int,
     image_file: BinaryIO,
@@ -140,6 +146,7 @@ async def send_image(
     )
 
 
+@deprecated
 async def send_existing_image(
     *,
     chat_id: int,
@@ -158,6 +165,7 @@ async def send_existing_image(
     )
 
 
+@deprecated
 async def forward_message(
     to_chat_id: int,
     message: dict,
