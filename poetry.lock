@@ -187,6 +187,25 @@ tests = ["cloudpickle", "hypothesis", "mypy (>=1.11.1)", "pympler", "pytest (>=4
 tests-mypy = ["mypy (>=1.11.1)", "pytest-mypy-plugins"]
 
 [[package]]
+name = "bs-config"
+version = "1.0.2"
+description = "Config"
+optional = false
+python-versions = ">=3.11,<3.13"
+files = [
+    {file = "bs_config-1.0.2-py3-none-any.whl", hash = "sha256:ff46170636fdbe4d8d1499bf42ad168fc6fc7acd47480ffd7baeca7d4568321b"},
+    {file = "bs_config-1.0.2.tar.gz", hash = "sha256:6f0c896487bc47b17547f39e6085b92dad4cd92a39d907140e27a8cc53289cb3"},
+]
+
+[package.extras]
+dotenv = ["python-dotenv (>=1.0.0,<2.0.0)"]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.bjoernpetersen.net"
+reference = "internal"
+
+[[package]]
 name = "bs-state"
 version = "0.2.2"
 description = "State"
@@ -1775,4 +1794,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "7e8bb74b81298881da5862dd70c3947edff4bb6ca5b87e87bf9ecb352a48f791"
+content-hash = "52b5fff0cbe146a84a033f2d35b25517b601fde1631263375ac9c76887295cf7"

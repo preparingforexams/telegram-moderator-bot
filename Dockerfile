@@ -25,6 +25,6 @@ COPY src/bot ./src/bot
 RUN poetry install --no-interaction --ansi --only-root
 
 ARG APP_VERSION
-ENV BUILD_SHA=$APP_VERSION
+ENV APP_VERSION=$APP_VERSION
 
 ENTRYPOINT [ "tini", "--", "poetry", "run", "python", "-m", "bot" ]

@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from collections.abc import Awaitable, Callable
 from typing import IO, BinaryIO
 
@@ -8,13 +7,14 @@ import httpx
 
 _LOG = logging.getLogger(__name__)
 
-_API_KEY = os.getenv("TELEGRAM_API_KEY")
+_API_KEY = ""
 
 _session = httpx.AsyncClient()
 
 
-def is_configured() -> bool:
-    return bool(_API_KEY)
+def initialize(token: str) -> None:
+    global _API_KEY
+    _API_KEY = token
 
 
 def _build_url(method: str) -> str:

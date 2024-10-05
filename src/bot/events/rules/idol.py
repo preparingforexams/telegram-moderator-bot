@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from dataclasses import dataclass
+from pathlib import Path
 
 from bot import telegram
 from bot.events.rule import EventRule
@@ -30,7 +31,7 @@ class HoroscopeEvent:
 class IdolRule(EventRule):
     name = "idol"
 
-    def __init__(self, config_dir: str):
+    def __init__(self, config_dir: Path):
         pass
 
     def __call__(self, event: dict) -> bool:
