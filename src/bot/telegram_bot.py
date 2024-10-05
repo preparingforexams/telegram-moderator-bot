@@ -1,11 +1,10 @@
 import asyncio
 import logging
 import signal
-import sys
 from typing import Any, cast
 
 import telegram
-from telegram.ext import Application, MessageHandler, filters,Updater
+from telegram.ext import Application, MessageHandler, Updater, filters
 
 from bot.config import Config
 from bot.rule_state import RuleState
@@ -40,7 +39,7 @@ class TelegramBot:
             for sig in [signal.SIGTERM, signal.SIGINT]:
                 loop.add_signal_handler(
                     sig,
-                    lambda _: finish_line.set(),
+                    finish_line.set,
                 )
 
             _LOG.info("Waiting for exit signal")
