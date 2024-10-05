@@ -24,6 +24,7 @@ spec:
       labels:
         app: {{ .Release.Name }}-update-handler
     spec:
+      terminationGracePeriodSeconds: 60
       serviceAccountName: {{ .Release.Name }}
       volumes:
         - name: config
