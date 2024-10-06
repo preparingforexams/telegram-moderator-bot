@@ -115,14 +115,38 @@ class SmartypantsRule(Rule[None]):
                 http_client=http_client,
             ) as ai_client:
                 _LOG.info("Generating image with prompt %s", prompt)
-                ai_response = await ai_client.images.generate(
-                    prompt=prompt,
-                    model="dall-e-3",
-                    n=1,
-                    quality="hd",
-                    response_format="url",
-                    size="1024x1024",
-                )
+                try:
+                    ai_response = await ai_client.images.generate(
+                        prompt=prompt,
+                        model="dall-e-3",
+                        n=1,
+                        quality="hd",
+                        response_format="url",
+                        size="1024x1024",
+                    )
+                except openai.BadRequestError as e:
+                    if (
+                        e.type == "invalid_request_error"
+                        and e.code == "content_policy_violation"
+                    ):
+                        _LOG.warning("Content policy violation")
+                        await bot.send_message(
+                            chat_id=chat_id,
+                            reply_parameters=telegram.ReplyParameters(
+                                message_id=message_id,
+                                allow_sending_without_reply=True,
+                            ),
+                            text="Sorry, OpenAI sagt das sei unangebracht 🤷",
+                        )
+                    else:
+                        _LOG.error("Request failed", exc_info=e)
+                        await bot.set_message_reaction(
+                            chat_id=chat_id,
+                            message_id=message_id,
+                            reaction="🤷",
+                        )
+
+                    return
 
                 image = ai_response.data[0]
                 image_url = cast(str, image.url)
