@@ -84,12 +84,11 @@ class SmartypantsRule(Rule[None]):
             _LOG.debug("Ignoring non-text message")
             return
 
-        if not text.startswith("/draw"):
+        message_parts = text.split(" ", maxsplit=1)
+        if not message_parts[0].lower().startswith("/draw"):
             _LOG.debug("Ignoring non-draw message")
             return
-
-        message_parts = text.split(" ", maxsplit=1)
-        if len(message_parts) < 2:
+        elif len(message_parts) < 2:
             await message.reply_text(
                 text="Usage example: /draw a horse playing a saxophone",
             )
