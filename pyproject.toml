@@ -34,7 +34,7 @@ scipy = "^1.10.0"
 sentry-sdk = "^2.0.0"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "~1.11"
+mypy = "~1.12"
 pytest = "^8.0.0"
 ruff = "0.6.9"
 types-deprecated = "*"
