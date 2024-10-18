@@ -207,13 +207,13 @@ reference = "internal"
 
 [[package]]
 name = "bs-state"
-version = "0.2.2"
+version = "0.3.0"
 description = "State"
 optional = false
-python-versions = ">=3.11,<3.13"
+python-versions = ">=3.11,<3.14"
 files = [
-    {file = "bs_state-0.2.2-py3-none-any.whl", hash = "sha256:52a615e22d73a88d3c2cceb2d82402628412a08be97aa3d390dfc9de52139972"},
-    {file = "bs_state-0.2.2.tar.gz", hash = "sha256:18ccebc345e66cdb35b2bf335d5f8c7f76b25005bbb03ab78e6401aa80f5bbb2"},
+    {file = "bs_state-0.3.0-py3-none-any.whl", hash = "sha256:e4db9b2dc3c30e008341532c0f73116a8daf731573578b112a0c0ec93358694f"},
+    {file = "bs_state-0.3.0.tar.gz", hash = "sha256:677c8adb0df4585de8e2d1ab30fdc9054451aaa0e6a956e8c9472cd0aa5686ca"},
 ]
 
 [package.dependencies]
@@ -2097,4 +2097,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "d92d39b9025e0c5f8d2c2b9345151ee2eb0591ab62f6fb17ef16baf2bab06d08"
+content-hash = "2991213d9cd8ebc16ff7aa7523ac0dcafe14000f3b6075ac78bc13607aca309d"

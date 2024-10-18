@@ -18,7 +18,7 @@ priority = "explicit"
 
 [tool.poetry.dependencies]
 bs-config = { version = "^1.0.0", source = "internal" }
-bs-state = { version = "0.2.2", extras = ["kubernetes"], source = "internal" }
+bs-state = { version = "0.3.0", extras = ["kubernetes"], source = "internal" }
 certifi = "2024.8.30"
 deprecated = "^1.2.14"
 google-cloud-pubsub = "^2.13.11"
