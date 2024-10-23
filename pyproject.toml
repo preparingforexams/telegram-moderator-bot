@@ -1,5 +1,5 @@
 [project]
-requires-python = "==3.12.*"
+requires-python = "==3.13.*"
 
 [tool.poetry]
 name = "moderator-bot"
@@ -29,7 +29,7 @@ opencv-python = "4.10.0.84"
 pydantic = "^2.4.2"
 python-telegram-bot = "21.6"
 pyyaml = "6.0.2"
-python = "~3.12"
+python = "~3.13"
 scipy = "^1.10.0"
 sentry-sdk = "^2.0.0"
 
