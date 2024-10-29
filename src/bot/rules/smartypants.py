@@ -180,4 +180,5 @@ class SmartypantsRule(Rule[None]):
                         allow_sending_without_reply=True,
                     ),
                     photo=download_response.content,
+                    write_timeout=60,
                 )
