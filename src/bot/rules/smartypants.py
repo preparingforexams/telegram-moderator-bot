@@ -151,9 +151,19 @@ class SmartypantsRule(Rule[None]):
                 image_url = cast(str, image.url)
 
                 _LOG.info("Downloading generated image")
-                download_response = await http_client.get(
-                    url=image_url,
-                )
+                try:
+                    download_response = await http_client.get(
+                        url=image_url,
+                        timeout=60,
+                    )
+                except httpx.HTTPError as e:
+                    _LOG.error("Image download failed", exc_info=e)
+                    await bot.set_message_reaction(
+                        chat_id=chat_id,
+                        message_id=message_id,
+                        reaction="🤷",
+                    )
+                    return
 
                 if not download_response.is_success:
                     _LOG.error(
