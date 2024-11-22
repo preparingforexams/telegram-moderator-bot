@@ -36,7 +36,7 @@ sentry-sdk = "^2.0.0"
 [tool.poetry.group.dev.dependencies]
 mypy = "~1.13"
 pytest = "^8.0.0"
-ruff = "0.7.4"
+ruff = "0.8.0"
 types-deprecated = "*"
 types-pyyaml = "^6.0.12.2"
 
