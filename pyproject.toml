@@ -1,48 +1,51 @@
 [project]
 requires-python = "==3.13.*"
-
-[tool.poetry]
-name = "moderator-bot"
+name = "bot"
 description = "Deletes messages."
 version = "1.0.0"
-authors = ["OpenAlcoholics <team@openalcoholics.group>"]
-license = "MIT"
-packages = [
-    { include = "bot", from = "src" }
+authors = [{ name = "BlindfoldedSurgery", email = "team@blindfolded.surgery" }]
+classifiers = [
+    "Private :: Do Not Upload",
+    "License :: OSI Approved :: MIT License",
 ]
 
-[[tool.poetry.source]]
+dependencies = [
+    "bs-config [dotenv] ==1.1.1",
+    "bs-state [kubernetes] ==0.3.*",
+    "deprecated >=1.0.0, <2.0.0",
+    "google-cloud-pubsub >=2.0.0, <3.0.0",
+    "httpx ==0.28.*",
+    "numpy >=2.0.0, <3.0.0",
+    "openai >=1.0.0, <2.0.0",
+    "opencv-python ==4.10.0.84",
+    "pydantic ==2.10.*",
+    "python-telegram-bot ==21.9",
+    "pyyaml ==6.0.2",
+    "scipy >=1.0.0, <2.0.0",
+    "sentry-sdk >=2.0.0, <3.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy ==1.13.*",
+    "pytest >=8.0.0, <9.0.0",
+    "ruff ==0.8.3",
+    "types-deprecated",
+    "types-pyyaml >=6, <7",
+]
+
+[[tool.uv.index]]
 name = "internal"
 url = "https://pypi.bjoernpetersen.net"
-priority = "explicit"
+explicit = true
 
-[tool.poetry.dependencies]
-bs-config = { version = "^1.0.0", source = "internal" }
-bs-state = { version = "0.3.1", extras = ["kubernetes"], source = "internal" }
-certifi = "2024.8.30"
-deprecated = "^1.2.14"
-google-cloud-pubsub = "^2.13.11"
-httpx = "^0.28.0"
-numpy = "^2.0.0"
-openai = "^1.51.0"
-opencv-python = "4.10.0.84"
-pydantic = "^2.4.2"
-python-telegram-bot = "21.9"
-pyyaml = "6.0.2"
-python = "~3.13"
-scipy = "^1.10.0"
-sentry-sdk = "^2.0.0"
-
-[tool.poetry.group.dev.dependencies]
-mypy = "~1.13"
-pytest = "^8.0.0"
-ruff = "0.8.3"
-types-deprecated = "*"
-types-pyyaml = "^6.0.12.2"
+[tool.uv.sources]
+bs-config = { index = "internal" }
+bs-state = { index = "internal" }
 
 [build-system]
-requires = ["poetry-core>=1.3.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.mypy]
 plugins = ["pydantic.mypy"]
@@ -81,9 +84,6 @@ ignore = [
     # redundant-open-modes
     "UP015",
 ]
-
-[tool.ruff.lint.isort]
-known-first-party = ["bot"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
