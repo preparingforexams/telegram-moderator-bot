@@ -41,4 +41,4 @@ jobs:
   clean:
     concurrency: cleanup
     needs: [ deploy ]
-    uses: preparingforexams/actions-container/.github/workflows/clean.yml@v4
+    uses: preparingforexams/actions-container/.github/workflows/clean.yml@v5
