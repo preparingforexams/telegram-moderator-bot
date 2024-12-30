@@ -26,6 +26,10 @@ spec:
     spec:
       terminationGracePeriodSeconds: 60
       serviceAccountName: {{ .Release.Name }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       volumes:
         - name: config
           configMap:
@@ -54,3 +58,7 @@ spec:
                 name: {{ .Release.Name }}-secrets
             - secretRef:
                 name: {{ .Release.Name }}-rule-secrets
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
