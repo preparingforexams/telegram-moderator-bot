@@ -18,7 +18,7 @@ dependencies = [
     "numpy >=2.0.0, <3.0.0",
     "openai >=1.0.0, <2.0.0",
     "opencv-python ==4.11.0.86",
-    "pydantic ==2.10.*",
+    "pydantic ==2.11.*",
     "python-telegram-bot ==22.0",
     "pyyaml ==6.0.2",
     "scipy >=1.0.0, <2.0.0",
