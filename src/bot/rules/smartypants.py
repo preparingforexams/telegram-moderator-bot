@@ -147,7 +147,12 @@ class SmartypantsRule(Rule[None]):
 
                     return
 
-                image = ai_response.data[0]
+                ai_response_data = ai_response.data
+                if not ai_response_data:
+                    _LOG.error("No data in response %s", ai_response)
+                    return
+
+                image = ai_response_data[0]
                 image_url = cast(str, image.url)
 
                 _LOG.info("Downloading generated image")
