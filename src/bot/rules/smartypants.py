@@ -1,3 +1,4 @@
+import base64
 import logging
 from dataclasses import dataclass
 from pathlib import Path
@@ -14,6 +15,7 @@ from bot.rules import Rule
 _LOG = logging.getLogger(__name__)
 
 type ImageQuality = Literal["standard", "hd", "low", "medium", "high"]
+type ModerationLevel = Literal["low", "auto"]
 
 
 @dataclass
@@ -21,6 +23,7 @@ class _Config:
     enabled_chat_ids: list[int]
     image_quality: ImageQuality
     model_name: str
+    moderation: ModerationLevel | None
     openai_token: str
 
     @classmethod
@@ -33,6 +36,7 @@ class _Config:
             enabled_chat_ids=config_dict["enabledChats"],
             image_quality=cast(ImageQuality, config_dict.get("imageQuality", "hd")),
             model_name=config_dict.get("modelName", "dall-e-3"),
+            moderation=cast(ModerationLevel | None, config_dict.get("moderationLevel")),
             openai_token=secrets_env.get_string("OPENAI_TOKEN", required=True),
         )
 
@@ -43,6 +47,7 @@ class _Config:
             image_quality="hd",
             openai_token="",
             model_name="",
+            moderation=None,
         )
 
 
@@ -128,7 +133,10 @@ class SmartypantsRule(Rule[None]):
                         model=self.config.model_name,
                         n=1,
                         quality=self.config.image_quality,
-                        response_format="url",
+                        response_format="b64_json"
+                        if self.config.model_name == "dall-e-3"
+                        else None,
+                        moderation=self.config.moderation,
                         size="1024x1024",
                     )
                 except openai.BadRequestError as e:
@@ -161,28 +169,10 @@ class SmartypantsRule(Rule[None]):
                     return
 
                 image = ai_response_data[0]
-                image_url = cast(str, image.url)
+                image_data = image.b64_json
 
-                _LOG.info("Downloading generated image")
-                try:
-                    download_response = await http_client.get(
-                        url=image_url,
-                        timeout=60,
-                    )
-                except httpx.HTTPError as e:
-                    _LOG.error("Image download failed", exc_info=e)
-                    await bot.set_message_reaction(
-                        chat_id=chat_id,
-                        message_id=message_id,
-                        reaction="🤷",
-                    )
-                    return
-
-                if not download_response.is_success:
-                    _LOG.error(
-                        "Could not download OpenAI image (response code %d)",
-                        download_response.status_code,
-                    )
+                if not image_data:
+                    _LOG.error("No base64 data in response %s", ai_response)
                     return
 
                 _LOG.info("Sending image as response")
@@ -192,6 +182,6 @@ class SmartypantsRule(Rule[None]):
                         message_id=message_id,
                         allow_sending_without_reply=True,
                     ),
-                    photo=download_response.content,
+                    photo=base64.b64decode(image_data),
                     write_timeout=60,
                 )
