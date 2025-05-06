@@ -36,9 +36,9 @@ data:
         - 🎯
 
   smartypants.yaml: |
-    modelName: gpt-image-1
-    imageQuality: medium
-    moderationLevel: low
+    #modelName: gpt-image-1
+    #imageQuality: medium
+    #moderationLevel: low
     enabledChats:
       - 133399998
       - -1002264342797
