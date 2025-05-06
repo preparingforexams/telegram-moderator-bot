@@ -39,9 +39,8 @@ spec:
           volumeMounts:
             - mountPath: /config
               name: config
-            - mountPath: /gcp/sa.json
+            - mountPath: /gcp
               name: gcp-secrets
-              subPath: GSA_JSON
               readOnly: true
           env:
             - name: STATE_NAME_PREFIX
