@@ -17,6 +17,7 @@ _LOG = logging.getLogger(__name__)
 @dataclass
 class _Config:
     enabled_chat_ids: list[int]
+    model_name: str
     openai_token: str
 
     @classmethod
@@ -27,6 +28,7 @@ class _Config:
     ) -> Self:
         return cls(
             enabled_chat_ids=config_dict["enabledChats"],
+            model_name=config_dict.get("modelName", "dall-e-3"),
             openai_token=secrets_env.get_string("OPENAI_TOKEN", required=True),
         )
 
@@ -35,6 +37,7 @@ class _Config:
         return cls(
             enabled_chat_ids=[],
             openai_token="",
+            model_name="",
         )
 
 
@@ -117,7 +120,7 @@ class SmartypantsRule(Rule[None]):
                 try:
                     ai_response = await ai_client.images.generate(
                         prompt=prompt,
-                        model="dall-e-3",
+                        model=self.config.model_name,
                         n=1,
                         quality="hd",
                         response_format="url",
