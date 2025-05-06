@@ -36,6 +36,8 @@ data:
         - 🎯
 
   smartypants.yaml: |
+    modelName: gpt-image-1
+    imageQuality: medium
     enabledChats:
       - 133399998
       - -1002264342797
