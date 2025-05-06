@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Self, cast
+from typing import Literal, Self, cast
 
 import httpx
 import openai
@@ -13,10 +13,13 @@ from bot.rules import Rule
 
 _LOG = logging.getLogger(__name__)
 
+type ImageQuality = Literal["standard", "hd", "low", "medium", "high"]
+
 
 @dataclass
 class _Config:
     enabled_chat_ids: list[int]
+    image_quality: ImageQuality
     model_name: str
     openai_token: str
 
@@ -28,6 +31,7 @@ class _Config:
     ) -> Self:
         return cls(
             enabled_chat_ids=config_dict["enabledChats"],
+            image_quality=cast(ImageQuality, config_dict.get("imageQuality", "hd")),
             model_name=config_dict.get("modelName", "dall-e-3"),
             openai_token=secrets_env.get_string("OPENAI_TOKEN", required=True),
         )
@@ -36,6 +40,7 @@ class _Config:
     def disabled(cls) -> Self:
         return cls(
             enabled_chat_ids=[],
+            image_quality="hd",
             openai_token="",
             model_name="",
         )
@@ -122,7 +127,7 @@ class SmartypantsRule(Rule[None]):
                         prompt=prompt,
                         model=self.config.model_name,
                         n=1,
-                        quality="hd",
+                        quality=self.config.image_quality,
                         response_format="url",
                         size="1024x1024",
                     )
