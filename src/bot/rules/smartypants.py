@@ -14,7 +14,7 @@ from bot.rules import Rule
 
 _LOG = logging.getLogger(__name__)
 
-type ImageQuality = Literal["standard", "hd", "low", "medium", "high"]
+type ImageQuality = Literal["low", "medium", "high"]
 type ModerationLevel = Literal["low", "auto"]
 
 
@@ -23,7 +23,7 @@ class _Config:
     enabled_chat_ids: list[int]
     image_quality: ImageQuality
     model_name: str
-    moderation: ModerationLevel | None
+    moderation: ModerationLevel
     openai_token: str
 
     @classmethod
@@ -34,9 +34,9 @@ class _Config:
     ) -> Self:
         return cls(
             enabled_chat_ids=config_dict["enabledChats"],
-            image_quality=cast(ImageQuality, config_dict.get("imageQuality", "hd")),
-            model_name=config_dict.get("modelName", "dall-e-3"),
-            moderation=cast(ModerationLevel | None, config_dict.get("moderationLevel")),
+            image_quality=cast(ImageQuality, config_dict["imageQuality"]),
+            model_name=config_dict["modelName"],
+            moderation=cast(ModerationLevel, config_dict["moderationLevel"]),
             openai_token=secrets_env.get_string("OPENAI_TOKEN", required=True),
         )
 
@@ -44,10 +44,10 @@ class _Config:
     def disabled(cls) -> Self:
         return cls(
             enabled_chat_ids=[],
-            image_quality="hd",
+            image_quality="low",
             openai_token="",
             model_name="",
-            moderation=None,
+            moderation="auto",
         )
 
 
@@ -131,11 +131,7 @@ class SmartypantsRule(Rule[None]):
                     ai_response = await ai_client.images.generate(
                         prompt=prompt,
                         model=self.config.model_name,
-                        n=1,
                         quality=self.config.image_quality,
-                        response_format="b64_json"
-                        if self.config.model_name == "dall-e-3"
-                        else None,
                         moderation=self.config.moderation,
                         size="1024x1024",
                     )
