@@ -39,30 +39,12 @@ class StateConfig:
 
 
 @dataclass
-class SubscriberConfig:
-    subscription_name: str
-
-    @classmethod
-    def from_env(cls, env: Env) -> Self | None:
-        project_id = env.get_string("GOOGLE_CLOUD_PROJECT")
-        simple_sub_name = env.get_string("GOOGLE_PUBSUB_SUBSCRIPTION")
-
-        if not (project_id and simple_sub_name):
-            return None
-
-        return cls(
-            subscription_name=f"projects/{project_id}/subscriptions/{simple_sub_name}",
-        )
-
-
-@dataclass
 class Config:
     app_version: str
     config_dir: Path
     rule_base_env: Env
     sentry_dsn: str | None
     state: StateConfig | None
-    subscriber: SubscriberConfig | None
     telegram_token: str
 
     @classmethod
@@ -73,6 +55,5 @@ class Config:
             rule_base_env=env.scoped("RULE_"),
             sentry_dsn=env.get_string("SENTRY_DSN"),
             state=StateConfig.from_env(env.scoped("STATE_")),
-            subscriber=SubscriberConfig.from_env(env),
             telegram_token=env.get_string("TELEGRAM_API_KEY", required=True),
         )

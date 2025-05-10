@@ -1,16 +1,11 @@
 import asyncio
 import logging
-import sys
 
 import sentry_sdk
-import telegram
 from bs_config import Env
 
 from bot import rules
 from bot.config import Config
-from bot.events import rules as event_rule
-from bot.events.rule import EventRule
-from bot.events.subscriber import EventSubscriber
 from bot.rule_state import RuleState
 from bot.telegram_bot import TelegramBot
 
@@ -76,36 +71,10 @@ def _load_config() -> Config:
 
 def main() -> None:
     _setup_logging()
-
     config = _load_config()
-
     _setup_sentry(config)
 
-    args = sys.argv
-    if len(args) > 1:
-        arg = args[1]
-
-        config_dir = config.config_dir
-        handler: EventRule
-        if arg == "--subscribe-horoscopes":
-            handler = event_rule.IdolRule(config_dir)
-        else:
-            _LOG.error("Invalid arguments (%s)", args)
-            sys.exit(1)
-
-        subscriber_config = config.subscriber
-        if subscriber_config is None:
-            _LOG.error("Subscriber config is missing or incomplete")
-            sys.exit(1)
-
-        subscriber = EventSubscriber(
-            bot=telegram.Bot(config.telegram_token),
-            config=subscriber_config,
-            rule=handler,
-        )
-        subscriber.subscribe()
-    else:
-        asyncio.run(_run_telegram_bot(config))
+    asyncio.run(_run_telegram_bot(config))
 
 
 if __name__ == "__main__":

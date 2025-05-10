@@ -1,1 +1,0 @@
-from .idol import IdolRule
