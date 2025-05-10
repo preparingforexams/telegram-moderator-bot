@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Generic, TypeVar
 
 from bs_state import StateStorage
 from bs_state.implementation import config_map_storage
@@ -10,11 +9,9 @@ from pydantic import BaseModel
 from bot import rules
 from bot.config import Config
 
-S = TypeVar("S", bound=BaseModel)
-
 
 @dataclass
-class RuleState(Generic[S]):
+class RuleState[S: BaseModel]:
     rule: rules.Rule[S | None]
     state_storage: StateStorage[S] | None
 
@@ -28,7 +25,7 @@ class RuleState(Generic[S]):
         return cls(rule, storage)
 
 
-async def _load_state_storage(
+async def _load_state_storage[S: BaseModel](
     config: Config,
     rule: rules.Rule[S | None],
 ) -> StateStorage[S] | None:
