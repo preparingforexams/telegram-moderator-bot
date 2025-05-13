@@ -35,6 +35,11 @@ data:
       emojis:
         - 🎯
 
+  premium.yaml: |
+    enabledChats:
+      - 133399998
+      - -1001649059583
+
   smartypants.yaml: |
     modelName: gpt-image-1
     imageQuality: medium
