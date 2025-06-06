@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 import sentry_sdk
@@ -61,7 +62,14 @@ def _setup_sentry(config: Config):
 async def _run_telegram_bot(config: Config):
     rule_states = await _init_rules(config)
     bot = TelegramBot(config, rule_states)
-    await bot.run()
+    try:
+        await bot.run()
+    finally:
+        async with asyncio.TaskGroup() as tg:
+            for rule_state in rule_states:
+                state_storage = rule_state.state_storage
+                if state_storage is not None:
+                    tg.create_task(state_storage.close())
 
 
 def _load_config() -> Config:
