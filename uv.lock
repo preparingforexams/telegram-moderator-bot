@@ -123,7 +123,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "bs-config", extras = ["dotenv"], specifier = "==1.1.1", index = "https://pypi.bjoernpetersen.net/" },
-    { name = "bs-state", extras = ["kubernetes"], specifier = "==1.0.*", index = "https://pypi.bjoernpetersen.net/" },
+    { name = "bs-state", extras = ["kubernetes"], specifier = "==2.1.*", index = "https://pypi.bjoernpetersen.net/" },
     { name = "httpx", specifier = "==0.28.*" },
     { name = "numpy", specifier = ">=2.0.0,<3.0.0" },
     { name = "openai", specifier = "==1.84.*" },
@@ -160,14 +160,14 @@ dotenv = [
 
 [[package]]
 name = "bs-state"
-version = "1.0.1"
+version = "2.1.0"
 source = { registry = "https://pypi.bjoernpetersen.net/" }
 dependencies = [
     { name = "pydantic" },
 ]
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_state-1.0.1.tar.gz", hash = "sha256:5138054ce96c98bf666ba82d273a4972353826340c1f46401b18cfe0d42a6596" }
+sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.1.0.tar.gz", hash = "sha256:63485b643e405bbf7c9c70b68528af0c123e5c53ed83b6fe4087c51fcb6245b1" }
 wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/bs_state-1.0.1-py3-none-any.whl", hash = "sha256:e26637cddedb3f3239fc6150ab5e4f57befde45b306aa48efc5a33e662f10dd0" },
+    { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.1.0-py3-none-any.whl", hash = "sha256:ddea7b3c46c177ec77605751a2fb9dd7cfcef11ba3984cfbfbe44ec8397bc119" },
 ]
 
 [package.optional-dependencies]

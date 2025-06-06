@@ -11,7 +11,7 @@ classifiers = [
 
 dependencies = [
     "bs-config [dotenv] ==1.1.1",
-    "bs-state [kubernetes] ==1.0.*",
+    "bs-state [kubernetes] ==2.1.*",
     "httpx ==0.28.*",
     "numpy >=2.0.0, <3.0.0",
     "openai ==1.84.*",
