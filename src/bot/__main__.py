@@ -21,7 +21,6 @@ async def _init_rules(config: Config) -> list[RuleState]:
         rules.DiceRule,
         rules.LemonRule,
         rules.PremiumRule,
-        rules.SkyRule,
         rules.SlashRule,
         rules.SmartypantsRule,
     ]

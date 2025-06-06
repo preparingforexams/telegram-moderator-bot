@@ -19,12 +19,6 @@ data:
     -1001458632057
     -1001473841450
 
-  sky.yaml: |
-    enabledChats:
-      - 133399998
-    actions:
-      - insight
-
   darts.yaml: |
     133399998:
       emojis:
