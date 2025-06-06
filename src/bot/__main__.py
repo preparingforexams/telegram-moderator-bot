@@ -1,7 +1,7 @@
-import asyncio
 import logging
 
 import sentry_sdk
+import uvloop
 from bs_config import Env
 
 from bot import rules
@@ -75,7 +75,7 @@ def main() -> None:
     config = _load_config()
     _setup_sentry(config)
 
-    asyncio.run(_run_telegram_bot(config))
+    uvloop.run(_run_telegram_bot(config))
 
 
 if __name__ == "__main__":
