@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from bs_state import StateStorage
-from bs_state.implementation import config_map_storage
+from bs_state.implementation import config_map_storage, redis_storage
 from pydantic import BaseModel
 
 from bot import rules
@@ -38,6 +38,16 @@ async def _load_state_storage[S: BaseModel](
         from bs_state.implementation import memory_storage
 
         return await memory_storage.load(initial_state=initial_state)
+    elif redis_config := state_config.redis:
+        key = f"{redis_config.username}:{state_config.secret_name_prefix}:{rule.name()}"
+
+        return await redis_storage.load(
+            initial_state=initial_state,
+            host=redis_config.host,
+            username=redis_config.username,
+            password=redis_config.password,
+            key=key,
+        )
     else:
         name_prefix = state_config.secret_name_prefix
         namespace = state_config.secret_namespace
