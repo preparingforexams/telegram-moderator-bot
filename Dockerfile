@@ -11,12 +11,6 @@ FROM ghcr.io/astral-sh/uv:${UV_VERSION}-python${PYTHON_VERSION}-${DEBIAN_VERSION
 
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
-        libjpeg-dev \
-        libpng-dev \
-        libgl1 \
-        libglib2.0-0 \
-        libsm6 \
-        libxext6 \
         tini  \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
