@@ -20,6 +20,7 @@ def load_config_dict_from_yaml(config_file: Path) -> dict | None:
 
     return config_dict
 
+
 @dataclass
 class RedisStateConfig:
     host: str
@@ -27,7 +28,7 @@ class RedisStateConfig:
     password: str
 
     @classmethod
-    def from_env(cls, env: Env)->Self |None:
+    def from_env(cls, env: Env) -> Self | None:
         host = env.get_string("HOST")
         if host is None:
             return None
@@ -38,11 +39,12 @@ class RedisStateConfig:
             password=env.get_string("PASSWORD", required=True),
         )
 
+
 @dataclass
 class StateConfig:
     secret_name_prefix: str
     secret_namespace: str
-    redis: RedisStateConfig |None
+    redis: RedisStateConfig | None
 
     @classmethod
     def from_env(cls, env: Env) -> Self | None:
