@@ -53,6 +53,16 @@ spec:
               value: {{ .Release.Namespace }}
             - name: ADMIN_USER_ID
               value: "{{ .Values.telegram.adminUserId }}"
+            - name: STATE_REDIS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: redis-credentials
+                  key: username
+            - name: STATE_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-credentials
+                  key: password
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-secrets
