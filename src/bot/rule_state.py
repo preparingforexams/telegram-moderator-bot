@@ -44,7 +44,7 @@ async def _load_state_storage[S: BaseModel](
         return await memory_storage.load(initial_state=initial_state)
     elif redis_config := state_config.redis:
         _LOG.info("Using Redis state storage")
-        key = f"{redis_config.username}:{state_config.secret_name_prefix}:{rule.name()}"
+        key = f"{redis_config.username}:rulestate:{rule.name()}"
 
         return await redis_storage.load(
             initial_state=initial_state,
@@ -53,10 +53,10 @@ async def _load_state_storage[S: BaseModel](
             password=redis_config.password,
             key=key,
         )
-    else:
+    elif kubernetes_config := state_config.kubernetes:
         _LOG.info("Using Kubernetes state storage")
-        name_prefix = state_config.secret_name_prefix
-        namespace = state_config.secret_namespace
+        name_prefix = kubernetes_config.name_prefix
+        namespace = kubernetes_config.namespace
 
         name = f"{name_prefix}{rule.name()}"
 
@@ -65,3 +65,5 @@ async def _load_state_storage[S: BaseModel](
             namespace=namespace,
             config_map_name=name,
         )
+    else:
+        raise ValueError("Invalid state config")

@@ -22,6 +22,23 @@ def load_config_dict_from_yaml(config_file: Path) -> dict | None:
 
 
 @dataclass
+class KubernetesStateConfig:
+    name_prefix: str
+    namespace: str
+
+    @classmethod
+    def from_env(cls, env: Env) -> Self | None:
+        namespace = env.get_string("NAMESPACE")
+        if namespace is None:
+            return None
+
+        return cls(
+            namespace=namespace,
+            name_prefix=env.get_string("NAME_PREFIX", required=True),
+        )
+
+
+@dataclass
 class RedisStateConfig:
     host: str
     username: str
@@ -42,19 +59,20 @@ class RedisStateConfig:
 
 @dataclass
 class StateConfig:
-    secret_name_prefix: str
-    secret_namespace: str
+    kubernetes: KubernetesStateConfig | None
     redis: RedisStateConfig | None
 
     @classmethod
-    def from_env(cls, env: Env) -> Self | None:
+    def from_env(cls, env: Env) -> Self:
         if env.get_bool("DEBUG_MODE", default=False):
             _LOG.warning("Debug mode enabled")
-            return None
+            return cls(
+                kubernetes=None,
+                redis=None,
+            )
 
         return cls(
-            secret_name_prefix=env.get_string("NAME_PREFIX", required=True),
-            secret_namespace=env.get_string("NAMESPACE", required=True),
+            kubernetes=KubernetesStateConfig.from_env(env.scoped("KUBERNETES_")),
             redis=RedisStateConfig.from_env(env.scoped("REDIS_")),
         )
 
@@ -65,7 +83,7 @@ class Config:
     config_dir: Path
     rule_base_env: Env
     sentry_dsn: str | None
-    state: StateConfig | None
+    state: StateConfig
     telegram_token: str
 
     @classmethod

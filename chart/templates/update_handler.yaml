@@ -47,12 +47,12 @@ spec:
           env:
             - name: CONFIG_DIR
               value: /config
-            - name: STATE_NAME_PREFIX
-              value: {{ .Release.Name }}-state-
-            - name: STATE_NAMESPACE
-              value: {{ .Release.Namespace }}
             - name: ADMIN_USER_ID
               value: "{{ .Values.telegram.adminUserId }}"
+            - name: STATE_KUBERNETES_NAME_PREFIX
+              value: {{ .Release.Name }}-state-
+            - name: STATE_KUBERNETES_NAMESPACE
+              value: {{ .Release.Namespace }}
             - name: STATE_REDIS_USERNAME
               valueFrom:
                 secretKeyRef:
