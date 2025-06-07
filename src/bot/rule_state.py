@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 
 from bs_state import StateStorage
@@ -8,6 +9,8 @@ from pydantic import BaseModel
 
 from bot import rules
 from bot.config import Config
+
+_LOG = logging.getLogger(__name__)
 
 
 @dataclass
@@ -35,10 +38,12 @@ async def _load_state_storage[S: BaseModel](
 
     state_config = config.state
     if state_config is None:
+        _LOG.warning("Using in-memory state storage")
         from bs_state.implementation import memory_storage
 
         return await memory_storage.load(initial_state=initial_state)
     elif redis_config := state_config.redis:
+        _LOG.info("Using Redis state storage")
         key = f"{redis_config.username}:{state_config.secret_name_prefix}:{rule.name()}"
 
         return await redis_storage.load(
@@ -49,6 +54,7 @@ async def _load_state_storage[S: BaseModel](
             key=key,
         )
     else:
+        _LOG.info("Using Kubernetes state storage")
         name_prefix = state_config.secret_name_prefix
         namespace = state_config.secret_namespace
 
