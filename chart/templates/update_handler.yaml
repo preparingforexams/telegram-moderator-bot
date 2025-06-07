@@ -63,6 +63,8 @@ spec:
                 secretKeyRef:
                   name: redis-credentials
                   key: password
+            - name: STATE_REDIS_HOST
+              value: "redis.prep-redis-state"
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-secrets
