@@ -19,7 +19,7 @@ class TelegramBot:
         self.bot = telegram.Bot(token=config.telegram_token)
 
     async def run(self) -> None:
-        app = Application.builder().bot(self.bot).build()
+        app = Application.builder().bot(self.bot).update_queue().updater().build()
 
         app.add_handler(
             MessageHandler(
@@ -27,6 +27,7 @@ class TelegramBot:
                 callback=self._on_message,
             )
         )
+
 
         async with app:
             _LOG.info("Running bot")
