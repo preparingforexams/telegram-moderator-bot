@@ -6,6 +6,8 @@ from typing import Self
 import yaml
 from bs_config import Env
 
+from bot.nats_updater import NatsConfig
+
 _LOG = logging.getLogger(__name__)
 
 
@@ -81,6 +83,7 @@ class StateConfig:
 class Config:
     app_version: str
     config_dir: Path
+    nats: NatsConfig | None
     rule_base_env: Env
     sentry_dsn: str | None
     state: StateConfig
@@ -91,6 +94,7 @@ class Config:
         return cls(
             app_version=env.get_string("APP_VERSION", default="dirty"),
             config_dir=Path(env.get_string("CONFIG_DIR", default="config")),
+            nats=NatsConfig.from_env(env.scoped("NATS_")),
             rule_base_env=env.scoped("RULE_"),
             sentry_dsn=env.get_string("SENTRY_DSN"),
             state=StateConfig.from_env(env.scoped("STATE_")),

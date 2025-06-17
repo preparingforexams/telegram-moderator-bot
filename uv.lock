@@ -96,6 +96,7 @@ dependencies = [
     { name = "bs-config", extra = ["dotenv"] },
     { name = "bs-state", extra = ["kubernetes", "redis"] },
     { name = "httpx" },
+    { name = "nats-py" },
     { name = "numpy" },
     { name = "openai" },
     { name = "pydantic" },
@@ -120,6 +121,7 @@ requires-dist = [
     { name = "bs-config", extras = ["dotenv"], specifier = "==1.1.1", index = "https://pypi.bjoernpetersen.net/" },
     { name = "bs-state", extras = ["kubernetes", "redis"], specifier = "==2.2.*", index = "https://pypi.bjoernpetersen.net/" },
     { name = "httpx", specifier = "==0.28.*" },
+    { name = "nats-py", specifier = "==2.10.0" },
     { name = "numpy", specifier = ">=2.0.0,<3.0.0" },
     { name = "openai", specifier = "==1.93.*" },
     { name = "pydantic", specifier = "==2.11.*" },
@@ -430,6 +432,12 @@ sdist = { url = "https://files.pythonhosted.org/packages/a2/6e/371856a3fb9d31ca8
 wheels = [
     { url = "https://files.pythonhosted.org/packages/79/7b/2c79738432f5c924bef5071f933bcc9efd0473bac3b4aa584a6f7c1c8df8/mypy_extensions-1.1.0-py3-none-any.whl", hash = "sha256:1be4cccdb0f2482337c4743e60421de3a356cd97508abadd57d47403e94f5505", size = 4963, upload-time = "2025-04-22T14:54:22.983Z" },
 ]
+
+[[package]]
+name = "nats-py"
+version = "2.10.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/83/2f/0f1b94844760a894659388059bc618b59fd794a3ef2f5113d710864d3fa7/nats_py-2.10.0.tar.gz", hash = "sha256:9d44265a097edb30d40e214c1dd1a7405c1451d33480ce714c041fb73bb66a10", size = 113637, upload-time = "2025-03-25T05:11:22.102Z" }
 
 [[package]]
 name = "numpy"
