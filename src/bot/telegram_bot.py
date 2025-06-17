@@ -1,12 +1,18 @@
 import asyncio
 import logging
 import signal
-from typing import Any, cast
+from typing import Any
 
 import telegram
-from telegram.ext import Application, MessageHandler, Updater, filters
+from telegram.ext import (
+    Application,
+    MessageHandler,
+    Updater,
+    filters,
+)
 
 from bot.config import Config
+from bot.nats_updater import NatsUpdater
 from bot.rule_state import RuleState
 
 _LOG = logging.getLogger(__name__)
@@ -19,7 +25,21 @@ class TelegramBot:
         self.bot = telegram.Bot(token=config.telegram_token)
 
     async def run(self) -> None:
-        app = Application.builder().bot(self.bot).build()
+        updater: Updater | NatsUpdater
+        if nats_config := self.config.nats:
+            updater = NatsUpdater(
+                bot=self.bot,
+                nats_config=nats_config,
+            )
+        else:
+            _LOG.warning("Using non-NATS updater")
+            updater = Updater(self.bot, asyncio.Queue())
+
+        app: Application = (
+            Application.builder()
+            .updater(updater)  # type: ignore[arg-type]
+            .build()
+        )
 
         app.add_handler(
             MessageHandler(
@@ -31,7 +51,6 @@ class TelegramBot:
         async with app:
             _LOG.info("Running bot")
             await app.start()
-            updater = cast(Updater, app.updater)
             await updater.start_polling()
 
             finish_line = asyncio.Event()
