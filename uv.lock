@@ -120,7 +120,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "bs-config", extras = ["dotenv"], specifier = "==1.1.1", index = "https://pypi.bjoernpetersen.net/" },
-    { name = "bs-nats-updater", specifier = "==1.0.1", index = "https://pypi.bjoernpetersen.net/" },
+    { name = "bs-nats-updater", specifier = "==2.0.0", index = "https://pypi.bjoernpetersen.net/" },
     { name = "bs-state", extras = ["kubernetes", "redis"], specifier = "==2.2.*", index = "https://pypi.bjoernpetersen.net/" },
     { name = "httpx", specifier = "==0.28.*" },
     { name = "nats-py", specifier = "==2.10.0" },
@@ -159,7 +159,7 @@ dotenv = [
 
 [[package]]
 name = "bs-nats-updater"
-version = "1.0.1"
+version = "2.0.0"
 source = { registry = "https://pypi.bjoernpetersen.net/" }
 dependencies = [
     { name = "bs-config" },
@@ -167,9 +167,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "python-telegram-bot" },
 ]
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_nats_updater-1.0.1.tar.gz", hash = "sha256:af734a7df9101a92c22ff9416472163b26132da6ed6c44b2b66036bdf896cd9c" }
+sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_nats_updater-2.0.0.tar.gz", hash = "sha256:30779caf106593298c69c54329eb9900f69f66d6e334824b6a380a1265edbf31" }
 wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/bs_nats_updater-1.0.1-py3-none-any.whl", hash = "sha256:8ff46c4ddf708d0ca5df18d3b0170d6fb7b48659dcdd83a3bd278001910e50d2" },
+    { url = "https://pypi.bjoernpetersen.net/packages/bs_nats_updater-2.0.0-py3-none-any.whl", hash = "sha256:0cdcab1c2c884bea0086380c21d81334f9f67a157651812b4c671e243b2e3773" },
 ]
 
 [[package]]
