@@ -11,7 +11,7 @@ classifiers = [
 
 dependencies = [
     "bs-config [dotenv] ==1.1.1",
-    "bs-nats-updater ==1.0.1",
+    "bs-nats-updater ==2.0.0",
     "bs-state [kubernetes,redis] ==2.2.*",
     "httpx ==0.28.*",
     "nats-py ==2.10.0",
