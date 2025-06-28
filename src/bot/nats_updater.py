@@ -63,6 +63,7 @@ class NatsUpdater(contextlib.AbstractAsyncContextManager["NatsUpdater"]):
         self._is_initialized = False
 
         self.__nats_client = Client()
+        self.__nats_client.options["drain_timeout"] = 25
 
     @property
     def running(self) -> bool:
@@ -176,7 +177,7 @@ class NatsUpdater(contextlib.AbstractAsyncContextManager["NatsUpdater"]):
         _logger.debug("Setting up webhook config")
         await self._ensure_webhook()
 
-        while not (client.is_draining or client.is_closed):
+        while self.running and not (client.is_draining or client.is_closed):
             try:
                 messages = await sub.fetch(timeout=20)
             except TimeoutError:
