@@ -11,6 +11,7 @@ classifiers = [
 
 dependencies = [
     "bs-config [dotenv] ==1.1.1",
+    "bs-nats-updater ==1.0.1",
     "bs-state [kubernetes,redis] ==2.2.*",
     "httpx ==0.28.*",
     "nats-py ==2.10.0",
@@ -40,6 +41,7 @@ explicit = true
 
 [tool.uv.sources]
 bs-config = { index = "internal" }
+bs-nats-updater = { index = "internal" }
 bs-state = { index = "internal" }
 
 [build-system]

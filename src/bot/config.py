@@ -5,8 +5,7 @@ from typing import Self
 
 import yaml
 from bs_config import Env
-
-from bot.nats_updater import NatsConfig
+from bs_nats_updater import NatsConfig
 
 _LOG = logging.getLogger(__name__)
 

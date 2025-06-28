@@ -4,6 +4,7 @@ import signal
 from typing import Any
 
 import telegram
+from bs_nats_updater import NatsUpdater
 from telegram.ext import (
     Application,
     MessageHandler,
@@ -12,7 +13,6 @@ from telegram.ext import (
 )
 
 from bot.config import Config
-from bot.nats_updater import NatsUpdater
 from bot.rule_state import RuleState
 
 _LOG = logging.getLogger(__name__)
