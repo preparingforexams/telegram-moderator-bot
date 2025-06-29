@@ -4,7 +4,7 @@ import signal
 from typing import Any
 
 import telegram
-from bs_nats_updater import NatsUpdater
+from bs_nats_updater import create_updater
 from telegram.ext import (
     Application,
     MessageHandler,
@@ -25,11 +25,10 @@ class TelegramBot:
         self.bot = telegram.Bot(token=config.telegram_token)
 
     async def run(self) -> None:
-        updater: Updater | NatsUpdater
         if nats_config := self.config.nats:
-            updater = NatsUpdater(
-                bot=self.bot,
-                nats_config=nats_config,
+            updater = create_updater(
+                self.bot,
+                config=nats_config,
             )
         else:
             _LOG.warning("Using non-NATS updater")

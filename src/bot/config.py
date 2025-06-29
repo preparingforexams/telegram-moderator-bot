@@ -93,7 +93,7 @@ class Config:
         return cls(
             app_version=env.get_string("APP_VERSION", default="dirty"),
             config_dir=Path(env.get_string("CONFIG_DIR", default="config")),
-            nats=NatsConfig.from_env(env.scoped("NATS_")),
+            nats=NatsConfig.from_env(env.scoped("NATS_"), is_optional=True),
             rule_base_env=env.scoped("RULE_"),
             sentry_dsn=env.get_string("SENTRY_DSN"),
             state=StateConfig.from_env(env.scoped("STATE_")),
