@@ -119,9 +119,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bs-config", extras = ["dotenv"], specifier = "==1.1.1", index = "https://pypi.bjoernpetersen.net/" },
-    { name = "bs-nats-updater", specifier = "==2.0.2", index = "https://pypi.bjoernpetersen.net/" },
-    { name = "bs-state", extras = ["kubernetes", "redis"], specifier = "==2.2.*", index = "https://pypi.bjoernpetersen.net/" },
+    { name = "bs-config", extras = ["dotenv"], specifier = "==1.1.1", index = "https://pypi.bjoernpetersen.net/simple" },
+    { name = "bs-nats-updater", specifier = "==2.0.2", index = "https://pypi.bjoernpetersen.net/simple" },
+    { name = "bs-state", extras = ["kubernetes", "redis"], specifier = "==2.2.*", index = "https://pypi.bjoernpetersen.net/simple" },
     { name = "httpx", specifier = "==0.28.*" },
     { name = "nats-py", specifier = "==2.10.0" },
     { name = "numpy", specifier = ">=2.0.0,<3.0.0" },
@@ -146,7 +146,7 @@ dev = [
 [[package]]
 name = "bs-config"
 version = "1.1.1"
-source = { registry = "https://pypi.bjoernpetersen.net/" }
+source = { registry = "https://pypi.bjoernpetersen.net/simple" }
 sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_config-1.1.1.tar.gz", hash = "sha256:4aa495f29a9456af762d8375d4138270bf538a50b52128659646c7359f487e6f" }
 wheels = [
     { url = "https://pypi.bjoernpetersen.net/packages/bs_config-1.1.1-py3-none-any.whl", hash = "sha256:00d480c9d3f2f0494a54f2d1da860dfedd4204119dde41db63c630baa4fd57b9" },
@@ -160,7 +160,7 @@ dotenv = [
 [[package]]
 name = "bs-nats-updater"
 version = "2.0.2"
-source = { registry = "https://pypi.bjoernpetersen.net/" }
+source = { registry = "https://pypi.bjoernpetersen.net/simple" }
 dependencies = [
     { name = "bs-config" },
     { name = "nats-py" },
@@ -174,14 +174,14 @@ wheels = [
 
 [[package]]
 name = "bs-state"
-version = "2.2.0"
-source = { registry = "https://pypi.bjoernpetersen.net/" }
+version = "2.2.1"
+source = { registry = "https://pypi.bjoernpetersen.net/simple" }
 dependencies = [
     { name = "pydantic" },
 ]
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.2.0.tar.gz", hash = "sha256:eb9324150d360960ff082d301b6341114b3cac6ef799c455b3eb90757b2d8b80" }
+sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.2.1.tar.gz", hash = "sha256:9bac1466eda0b78b1171bb0d475374ee1a68ddea0e4be001d3de423e8a897a28" }
 wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.2.0-py3-none-any.whl", hash = "sha256:bac7859f9b726ba7e863aaa255e9febb57c0d8af8d5cd5cd9b632725f6555e1a" },
+    { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.2.1-py3-none-any.whl", hash = "sha256:ce25f3cbe5642a97cb41252db52d9fad4ed98ab02eb1efc3dc070aba4326ad6a" },
 ]
 
 [package.optional-dependencies]
