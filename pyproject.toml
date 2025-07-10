@@ -16,7 +16,7 @@ dependencies = [
     "httpx ==0.28.*",
     "nats-py ==2.10.0",
     "numpy >=2.0.0, <3.0.0",
-    "openai ==1.93.*",
+    "openai ==1.94.*",
     "pydantic ==2.11.*",
     "python-telegram-bot ==22.2",
     "pyyaml ==6.0.2",
