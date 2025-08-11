@@ -35,7 +35,7 @@ data:
       - -1001649059583
 
   smartypants.yaml: |
-    modelName: "bytedance/seedream-3"
+    modelName: "openai/gpt-image-1"
     enabledChats:
       - 133399998
       - -1002264342797

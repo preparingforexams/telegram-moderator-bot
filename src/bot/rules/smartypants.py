@@ -1,4 +1,5 @@
 import logging
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Self, cast
@@ -19,6 +20,7 @@ _LOG = logging.getLogger(__name__)
 class _Config:
     enabled_chat_ids: list[int]
     model_name: str
+    openai_token: str
     replicate_token: str
 
     @classmethod
@@ -30,6 +32,7 @@ class _Config:
         return cls(
             enabled_chat_ids=config_dict["enabledChats"],
             model_name=config_dict["modelName"],
+            openai_token=secrets_env.get_string("OPENAI_TOKEN", required=True),
             replicate_token=secrets_env.get_string("REPLICATE_TOKEN", required=True),
         )
 
@@ -38,6 +41,7 @@ class _Config:
         return cls(
             enabled_chat_ids=[],
             model_name="",
+            openai_token="",
             replicate_token="",
         )
 
@@ -117,12 +121,13 @@ class SmartypantsRule(Rule[None]):
         _LOG.info("Generating image with prompt %s", prompt)
         try:
             ai_response = cast(
-                FileOutput,
+                FileOutput | AsyncIterator[FileOutput],
                 await ai_client.async_run(
                     self.config.model_name,
                     input=dict(
                         prompt=prompt,
-                        aspect_ratio="4:3",
+                        aspect_ratio="1:1",
+                        openai_api_key=self.config.openai_token,
                     ),
                     use_file_output=True,
                 ),
@@ -137,8 +142,26 @@ class SmartypantsRule(Rule[None]):
 
             return
 
+        file_output: FileOutput
+        if isinstance(ai_response, FileOutput):
+            _LOG.info("Response was FileOutput")
+            file_output = ai_response
+        else:
+            _LOG.info("Response was %s", type(ai_response))
+            async for item in ai_response:
+                file_output = item
+                break
+            else:
+                _LOG.error("Received empty response")
+                await bot.set_message_reaction(
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    reaction="💊",
+                )
+                return
+
         _LOG.info("Receiving image")
-        image = await ai_response.aread()
+        image = await file_output.aread()
         _LOG.info("Sending image of size %d as response", len(image))
         await bot.send_photo(
             chat_id=chat_id,
