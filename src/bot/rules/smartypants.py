@@ -137,6 +137,7 @@ class SmartypantsRule(Rule[None]):
 
             return
 
+        _LOG.info("Receiving image")
         image = await ai_response.aread()
         _LOG.info("Sending image of size %d as response", len(image))
         await bot.send_photo(
