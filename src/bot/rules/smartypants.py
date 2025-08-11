@@ -127,7 +127,6 @@ class SmartypantsRule(Rule[None]):
                     use_file_output=True,
                 ),
             )
-            _LOG.info("Actual response type: %s", type(ai_response))
         except ReplicateException as e:
             _LOG.error("Request failed", exc_info=e)
             await bot.set_message_reaction(
@@ -138,14 +137,14 @@ class SmartypantsRule(Rule[None]):
 
             return
 
-        async for image in ai_response:
-            _LOG.info("Sending image as response")
-            await bot.send_photo(
-                chat_id=chat_id,
-                reply_parameters=telegram.ReplyParameters(
-                    message_id=message_id,
-                    allow_sending_without_reply=True,
-                ),
-                photo=image,
-                write_timeout=60,
-            )
+        image = await ai_response.aread()
+        _LOG.info("Sending image of size %d as response", len(image))
+        await bot.send_photo(
+            chat_id=chat_id,
+            reply_parameters=telegram.ReplyParameters(
+                message_id=message_id,
+                allow_sending_without_reply=True,
+            ),
+            photo=image,
+            write_timeout=60,
+        )
