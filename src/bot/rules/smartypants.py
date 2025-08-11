@@ -1,30 +1,26 @@
-import base64
 import logging
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, Self, cast
+from typing import Self
 
-import httpx
-import openai
 import telegram
 from bs_config import Env
+from replicate import Client as ReplicateClient
+from replicate.exceptions import ReplicateException
+from replicate.helpers import FileOutput
 
 from bot.config import load_config_dict_from_yaml
 from bot.rules import Rule
 
 _LOG = logging.getLogger(__name__)
 
-type ImageQuality = Literal["low", "medium", "high"]
-type ModerationLevel = Literal["low", "auto"]
-
 
 @dataclass
 class _Config:
     enabled_chat_ids: list[int]
-    image_quality: ImageQuality
     model_name: str
-    moderation: ModerationLevel
-    openai_token: str
+    replicate_token: str
 
     @classmethod
     def from_dict(
@@ -34,20 +30,16 @@ class _Config:
     ) -> Self:
         return cls(
             enabled_chat_ids=config_dict["enabledChats"],
-            image_quality=cast(ImageQuality, config_dict["imageQuality"]),
             model_name=config_dict["modelName"],
-            moderation=cast(ModerationLevel, config_dict["moderationLevel"]),
-            openai_token=secrets_env.get_string("OPENAI_TOKEN", required=True),
+            replicate_token=secrets_env.get_string("REPLICATE_TOKEN", required=True),
         )
 
     @classmethod
     def disabled(cls) -> Self:
         return cls(
             enabled_chat_ids=[],
-            image_quality="low",
-            openai_token="",
             model_name="",
-            moderation="auto",
+            replicate_token="",
         )
 
 
@@ -121,63 +113,39 @@ class SmartypantsRule(Rule[None]):
         message_id: int,
         prompt: str,
     ) -> None:
-        async with httpx.AsyncClient() as http_client:
-            async with openai.AsyncClient(
-                api_key=self.config.openai_token,
-                http_client=http_client,
-            ) as ai_client:
-                _LOG.info("Generating image with prompt %s", prompt)
-                try:
-                    ai_response = await ai_client.images.generate(
-                        prompt=prompt,
-                        model=self.config.model_name,
-                        quality=self.config.image_quality,
-                        moderation=self.config.moderation,
-                        size="1024x1024",
-                    )
-                except openai.BadRequestError as e:
-                    if (
-                        e.type == "invalid_request_error"
-                        and e.code == "content_policy_violation"
-                    ):
-                        _LOG.warning("Content policy violation")
-                        await bot.send_message(
-                            chat_id=chat_id,
-                            reply_parameters=telegram.ReplyParameters(
-                                message_id=message_id,
-                                allow_sending_without_reply=True,
-                            ),
-                            text="Sorry, OpenAI sagt das sei unangebracht 🤷",
-                        )
-                    else:
-                        _LOG.error("Request failed", exc_info=e)
-                        await bot.set_message_reaction(
-                            chat_id=chat_id,
-                            message_id=message_id,
-                            reaction="🤷",
-                        )
+        ai_client = ReplicateClient(self.config.replicate_token)
 
-                    return
+        _LOG.info("Generating image with prompt %s", prompt)
+        try:
+            ai_response: AsyncIterator[FileOutput] = await ai_client.async_run(
+                self.config.model_name,
+                input=dict(
+                    prompt=prompt,
+                    aspect_ratio="4:3",
+                ),
+                use_file_output=True,
+            )
+        except ReplicateException as e:
+            _LOG.error("Request failed", exc_info=e)
+            await bot.set_message_reaction(
+                chat_id=chat_id,
+                message_id=message_id,
+                reaction="🤷",
+            )
 
-                ai_response_data = ai_response.data
-                if not ai_response_data:
-                    _LOG.error("No data in response %s", ai_response)
-                    return
+            return
 
-                image = ai_response_data[0]
-                image_data = image.b64_json
+        async for image in ai_response:
+            _LOG.info("Reading image data")
+            image_data = await image.aread()
 
-                if not image_data:
-                    _LOG.error("No base64 data in response %s", ai_response)
-                    return
-
-                _LOG.info("Sending image as response")
-                await bot.send_photo(
-                    chat_id=chat_id,
-                    reply_parameters=telegram.ReplyParameters(
-                        message_id=message_id,
-                        allow_sending_without_reply=True,
-                    ),
-                    photo=base64.b64decode(image_data),
-                    write_timeout=60,
-                )
+            _LOG.info("Sending image as response")
+            await bot.send_photo(
+                chat_id=chat_id,
+                reply_parameters=telegram.ReplyParameters(
+                    message_id=message_id,
+                    allow_sending_without_reply=True,
+                ),
+                photo=image_data,
+                write_timeout=60,
+            )

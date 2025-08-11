@@ -35,9 +35,7 @@ data:
       - -1001649059583
 
   smartypants.yaml: |
-    modelName: gpt-image-1
-    imageQuality: medium
-    moderationLevel: low
+    modelName: "bytedance/seedream-3"
     enabledChats:
       - 133399998
       - -1002264342797
