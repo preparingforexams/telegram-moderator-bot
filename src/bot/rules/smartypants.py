@@ -2,7 +2,7 @@ import logging
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Self, cast
+from typing import Self
 
 import telegram
 from bs_config import Env
@@ -120,19 +120,16 @@ class SmartypantsRule(Rule[None]):
 
         _LOG.info("Generating image with prompt %s", prompt)
         try:
-            ai_response = cast(
-                FileOutput | AsyncIterator[FileOutput],
-                await ai_client.async_run(
-                    self.config.model_name,
-                    input=dict(
-                        prompt=prompt,
-                        aspect_ratio="1:1",
-                        openai_api_key=self.config.openai_token,
-                        moderation="low",
-                        output_format="jpeg",
-                    ),
-                    use_file_output=True,
+            ai_response = await ai_client.async_run(
+                self.config.model_name,
+                input=dict(
+                    prompt=prompt,
+                    aspect_ratio="1:1",
+                    openai_api_key=self.config.openai_token,
+                    moderation="low",
+                    output_format="jpeg",
                 ),
+                use_file_output=True,
             )
         except ReplicateException as e:
             _LOG.error("Request failed", exc_info=e)
@@ -148,8 +145,11 @@ class SmartypantsRule(Rule[None]):
         if isinstance(ai_response, FileOutput):
             _LOG.info("Response was FileOutput")
             file_output = ai_response
-        else:
-            _LOG.info("Response was %s", type(ai_response))
+        elif isinstance(ai_response, list):
+            _LOG.info("Response was list")
+            file_output = ai_response[0]
+        elif isinstance(ai_response, AsyncIterator):
+            _LOG.info("Response was AsyncIterator")
             async for item in ai_response:
                 file_output = item
                 break
@@ -161,6 +161,9 @@ class SmartypantsRule(Rule[None]):
                     reaction="💊",
                 )
                 return
+        else:
+            _LOG.error("Response was %s", type(ai_response))
+            return
 
         _LOG.info("Receiving image")
         image = await file_output.aread()
