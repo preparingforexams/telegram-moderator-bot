@@ -1,8 +1,7 @@
 import logging
-from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Self
+from typing import Self, cast
 
 import telegram
 from bs_config import Env
@@ -117,14 +116,18 @@ class SmartypantsRule(Rule[None]):
 
         _LOG.info("Generating image with prompt %s", prompt)
         try:
-            ai_response: AsyncIterator[FileOutput] = await ai_client.async_run(
-                self.config.model_name,
-                input=dict(
-                    prompt=prompt,
-                    aspect_ratio="4:3",
+            ai_response = cast(
+                FileOutput,
+                await ai_client.async_run(
+                    self.config.model_name,
+                    input=dict(
+                        prompt=prompt,
+                        aspect_ratio="4:3",
+                    ),
+                    use_file_output=True,
                 ),
-                use_file_output=True,
             )
+            _LOG.info("Actual response type: %s", type(ai_response))
         except ReplicateException as e:
             _LOG.error("Request failed", exc_info=e)
             await bot.set_message_reaction(
@@ -136,9 +139,6 @@ class SmartypantsRule(Rule[None]):
             return
 
         async for image in ai_response:
-            _LOG.info("Reading image data")
-            image_data = await image.aread()
-
             _LOG.info("Sending image as response")
             await bot.send_photo(
                 chat_id=chat_id,
@@ -146,6 +146,6 @@ class SmartypantsRule(Rule[None]):
                     message_id=message_id,
                     allow_sending_without_reply=True,
                 ),
-                photo=image_data,
+                photo=image,
                 write_timeout=60,
             )
