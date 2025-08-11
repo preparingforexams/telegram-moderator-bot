@@ -128,6 +128,8 @@ class SmartypantsRule(Rule[None]):
                         prompt=prompt,
                         aspect_ratio="1:1",
                         openai_api_key=self.config.openai_token,
+                        moderation="low",
+                        output_format="jpg",
                     ),
                     use_file_output=True,
                 ),
