@@ -28,6 +28,9 @@ data:
     -1001604571340:
       emojis:
         - 🎯
+    -1001725586482:
+      emojis:
+        - 🎰
 
   premium.yaml: |
     enabledChats:
