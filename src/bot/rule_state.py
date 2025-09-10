@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from bs_state import StateStorage
 from bs_state.implementation import config_map_storage, redis_storage
 from pydantic import BaseModel
 
-from bot import rules
-from bot.config import Config
+if TYPE_CHECKING:
+    from bs_state import StateStorage
+
+    from bot import rules
+    from bot.config import Config
 
 _LOG = logging.getLogger(__name__)
 
