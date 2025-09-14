@@ -27,7 +27,6 @@ dev = [
     "mypy ==1.18.*",
     "pytest >=8.0.0, <9.0.0",
     "ruff ==0.13.0",
-    "types-deprecated",
     "types-pyyaml >=6, <7",
 ]
 
@@ -42,8 +41,8 @@ bs-nats-updater = { index = "internal" }
 bs-state = { index = "internal" }
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build==0.8.*"]
+build-backend = "uv_build"
 
 [tool.mypy]
 plugins = ["pydantic.mypy"]
