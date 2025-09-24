@@ -69,24 +69,63 @@ class _Config:
         )
 
 
+@dataclass(frozen=True)
+class DartResult:
+    time: datetime
+    # TODO: remove None after migration
+    result: int | None
+
+
 class LastDarts(BaseModel):
+    dart_result_by_user_id: dict[int, int] = {}
     dart_time_by_user_id: dict[int, datetime] = {}
+
+    def get_darts(self, user_id: int) -> DartResult | None:
+        time = self.dart_time_by_user_id.get(user_id)
+        if time is None:
+            return None
+
+        result = self.dart_result_by_user_id.get(user_id)
+        return DartResult(time=time, result=result)
+
+
+class DuoStats(BaseModel):
+    count_same: int = 0
+    count_different: int = 0
 
 
 class DartsState(BaseModel):
     last_darts_by_chat_id: dict[int, LastDarts] = {}
+    duo_stats_by_chat_id: dict[int, DuoStats] = {}
 
-    def get_last_dart(self, *, chat_id: int, user_id: int) -> datetime | None:
+    def get_last_dart(self, *, chat_id: int, user_id: int) -> DartResult | None:
         last_darts = self.last_darts_by_chat_id.get(chat_id, LastDarts())
-        return last_darts.dart_time_by_user_id.get(user_id)
+        return last_darts.get_darts(user_id)
 
-    def put_dart(self, *, chat_id: int, user_id: int, time: datetime) -> None:
+    def get_duo_stats(self, *, chat_id: int) -> DuoStats:
+        stats = self.duo_stats_by_chat_id.get(chat_id)
+
+        if stats is None:
+            stats = DuoStats()
+            self.duo_stats_by_chat_id[chat_id] = stats
+
+        return stats
+
+    def put_dart(
+        self,
+        *,
+        chat_id: int,
+        user_id: int,
+        time: datetime,
+        result: int,
+    ) -> None:
         last_darts = self.last_darts_by_chat_id.get(chat_id)
         if last_darts is None:
             last_darts = LastDarts()
             self.last_darts_by_chat_id[chat_id] = last_darts
 
         last_darts.dart_time_by_user_id[user_id] = time
+        last_darts.dart_result_by_user_id[user_id] = result
 
 
 class DartsRule(Rule[DartsState]):
@@ -109,6 +148,22 @@ class DartsRule(Rule[DartsState]):
 
     def initial_state(self) -> DartsState:
         return DartsState()
+
+    @staticmethod
+    def _is_valid(
+        config: _ChatConfig,
+        last_dart: DartResult | None,
+        darts_time: datetime,
+    ) -> bool:
+        if not last_dart:
+            _LOG.debug("No last dart found")
+            return True
+
+        if config.is_cooled_down(last=last_dart.time, now=darts_time):
+            _LOG.debug("Cooldown expired")
+            return True
+
+        return False
 
     async def __call__(
         self,
@@ -140,20 +195,36 @@ class DartsRule(Rule[DartsState]):
         user_id = user.id
 
         message_time = message.date
-        last_dart_time = state.get_last_dart(chat_id=chat_id, user_id=user_id)
-        state.put_dart(chat_id=chat_id, user_id=user_id, time=message_time)
+        last_dart = state.get_last_dart(chat_id=chat_id, user_id=user_id)
 
-        if not last_dart_time:
-            _LOG.debug(
-                "No known last message from user %s in chat %d",
-                username,
-                chat_id,
-            )
+        if not self._is_valid(config, last_dart, message_time):
+            _LOG.info("Deleting message from user %s", username)
+            await message.delete()
             return
 
-        if config.is_cooled_down(last=last_dart_time, now=message_time):
-            _LOG.debug("Cooldown expired")
+        state.put_dart(
+            chat_id=chat_id,
+            user_id=user_id,
+            time=message_time,
+            result=dice.value,
+        )
+
+        duo_ids = [167930454, 389582243]
+        if user_id not in duo_ids:
             return
 
-        _LOG.info("Deleting message from user %s", username)
-        await message.delete()
+        duo_ids.remove(user_id)
+        other_id = duo_ids[0]
+        other_result = state.get_last_dart(chat_id=other_id, user_id=other_id)
+
+        if other_result is None or config.is_cooled_down(
+            last=other_result.time, now=message_time
+        ):
+            _LOG.debug("Not tracking stats as duo isn't complete today")
+            return
+
+        stats = state.get_duo_stats(chat_id=chat_id)
+        if other_result.result == dice.value:
+            stats.count_same += 1
+        else:
+            stats.count_different += 1
