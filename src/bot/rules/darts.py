@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+from io import StringIO
 from pathlib import Path
 from typing import Self, cast
 from zoneinfo import ZoneInfo
@@ -165,6 +166,18 @@ class DartsRule(Rule[DartsState]):
 
         return False
 
+    @staticmethod
+    def is_command(*, command_name: str, message: str) -> bool:
+        is_command = message.startswith("/")
+        if not is_command:
+            return False
+
+        parts = message.split(maxsplit=1)
+        if len(parts) != 1:
+            raise ValueError("Did not expect args")
+
+        return message == f"/{command_name}" or message.startswith(f"/{command_name}@")
+
     async def __call__(
         self,
         *,
@@ -182,10 +195,33 @@ class DartsRule(Rule[DartsState]):
             _LOG.info("Skipping edited message")
             return
 
-        dice = message.dice
-        if dice is None:
+        if dice := message.dice:
+            await self._handle_dice_message(
+                chat_id=chat_id, config=config, message=message, state=state, dice=dice
+            )
             return
 
+        if text := message.text:
+            try:
+                is_command = self.is_command(command_name="stats", message=text)
+            except ValueError as e:
+                _LOG.info("Received invalid command: %s", e)
+                await message.set_reaction("🤷🏻‍♂️")
+            else:
+                if is_command:
+                    await self._handle_stats_command(
+                        chat_id=chat_id, message=message, state=state
+                    )
+
+    async def _handle_dice_message(
+        self,
+        *,
+        chat_id: int,
+        config: _ChatConfig,
+        message: telegram.Message,
+        state: DartsState,
+        dice: telegram.Dice,
+    ) -> None:
         if dice.emoji not in config.emojis:
             _LOG.debug("Dice emoji %s was not in %s", dice.emoji, config.emojis)
             return
@@ -228,3 +264,23 @@ class DartsRule(Rule[DartsState]):
             stats.count_same += 1
         else:
             stats.count_different += 1
+
+    async def _handle_stats_command(
+        self, *, chat_id: int, message: telegram.Message, state: DartsState
+    ) -> None:
+        start_date = date(2025, 9, 26)
+        today = datetime.now(tz=ZoneInfo("Europe/Berlin")).date()
+        days_observed = (today - start_date).days + 1
+
+        stats = state.get_duo_stats(chat_id=chat_id)
+        days_with_stats = stats.count_same + stats.count_different
+        quota = stats.count_same / days_with_stats
+
+        response = StringIO()
+        response.write(f"Tage seit Start der Erfassung: {days_observed}\n")
+        response.write(f"Tage mit Würfen von beiden: {days_with_stats}\n")
+        response.write(f"🤝-Quote: {quota:.2f}%\n")
+        if quota < 0.5:
+            response.write("\nL")
+
+        await message.reply_text(response.getvalue())
