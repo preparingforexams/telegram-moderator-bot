@@ -4,7 +4,7 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from bs_state.implementation import config_map_storage, redis_storage
+from bs_state.implementation import redis_storage
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
@@ -55,18 +55,6 @@ async def _load_state_storage[S: BaseModel](
             username=redis_config.username,
             password=redis_config.password,
             key=key,
-        )
-    elif kubernetes_config := state_config.kubernetes:
-        _LOG.info("Using Kubernetes state storage")
-        name_prefix = kubernetes_config.name_prefix
-        namespace = kubernetes_config.namespace
-
-        name = f"{name_prefix}{rule.name()}"
-
-        return await config_map_storage.load(
-            initial_state=initial_state,
-            namespace=namespace,
-            config_map_name=name,
         )
     else:
         raise ValueError("Invalid state config")

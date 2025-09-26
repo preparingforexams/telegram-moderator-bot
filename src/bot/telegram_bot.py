@@ -103,4 +103,5 @@ class TelegramBot:
                 _LOG.error("Rule threw an exception", exc_info=e)
             else:
                 if state_storage is not None and (True or old_state != state):
+                    _LOG.debug("Storing state for rule %s", rule.name())
                     await state_storage.store(state)

@@ -23,23 +23,6 @@ def load_config_dict_from_yaml(config_file: Path) -> dict | None:
 
 
 @dataclass
-class KubernetesStateConfig:
-    name_prefix: str
-    namespace: str
-
-    @classmethod
-    def from_env(cls, env: Env) -> Self | None:
-        namespace = env.get_string("NAMESPACE")
-        if namespace is None:
-            return None
-
-        return cls(
-            namespace=namespace,
-            name_prefix=env.get_string("NAME_PREFIX", required=True),
-        )
-
-
-@dataclass
 class RedisStateConfig:
     host: str
     username: str
@@ -60,7 +43,6 @@ class RedisStateConfig:
 
 @dataclass
 class StateConfig:
-    kubernetes: KubernetesStateConfig | None
     redis: RedisStateConfig | None
 
     @classmethod
@@ -68,12 +50,10 @@ class StateConfig:
         if env.get_bool("DEBUG_MODE", default=False):
             _LOG.warning("Debug mode enabled")
             return cls(
-                kubernetes=None,
                 redis=None,
             )
 
         return cls(
-            kubernetes=KubernetesStateConfig.from_env(env.scoped("KUBERNETES_")),
             redis=RedisStateConfig.from_env(env.scoped("REDIS_")),
         )
 
