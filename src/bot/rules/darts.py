@@ -274,12 +274,12 @@ class DartsRule(Rule[DartsState]):
 
         stats = state.get_duo_stats(chat_id=chat_id)
         days_with_stats = stats.count_same + stats.count_different
-        quota = stats.count_same / days_with_stats
+        quota = (stats.count_same / days_with_stats) * 100.0
 
         response = StringIO()
         response.write(f"Tage seit Start der Erfassung: {days_observed}\n")
         response.write(f"Tage mit Würfen von beiden: {days_with_stats}\n")
-        response.write(f"🤝-Quote: {quota:.2f}%\n")
+        response.write(f"🤝-Quote: {quota:.1f}%\n")
         if quota < 0.5:
             response.write("\nL")
 
