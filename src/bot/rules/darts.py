@@ -274,6 +274,10 @@ class DartsRule(Rule[DartsState]):
 
         stats = state.get_duo_stats(chat_id=chat_id)
         days_with_stats = stats.count_same + stats.count_different
+        if days_with_stats == 0:
+            await message.set_reaction("🤷🏻‍♂️")
+            return
+
         quota = (stats.count_same / days_with_stats) * 100.0
 
         response = StringIO()
