@@ -91,7 +91,7 @@ class LastDarts(BaseModel):
 
 
 class DuoStats(BaseModel):
-    count_same: int = 0
+    count_same: int = 1
     count_different: int = 0
 
 
