@@ -102,5 +102,5 @@ class TelegramBot:
             except Exception as e:
                 _LOG.error("Rule threw an exception", exc_info=e)
             else:
-                if state_storage is not None: #and old_state != state:
+                if state_storage is not None and (True or old_state != state):
                     await state_storage.store(state)
