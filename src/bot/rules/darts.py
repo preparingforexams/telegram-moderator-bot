@@ -251,7 +251,7 @@ class DartsRule(Rule[DartsState]):
 
         duo_ids.remove(user_id)
         other_id = duo_ids[0]
-        other_result = state.get_last_dart(chat_id=other_id, user_id=other_id)
+        other_result = state.get_last_dart(chat_id=chat_id, user_id=other_id)
 
         if other_result is None or config.is_cooled_down(
             last=other_result.time, now=message_time
