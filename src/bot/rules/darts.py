@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from bot.config import load_config_dict_from_yaml
 from bot.rules.rule import Rule
 
+_DUO_IDS = frozenset({167930454, 389582243})
 _LOG = logging.getLogger(__name__)
 
 
@@ -245,7 +246,7 @@ class DartsRule(Rule[DartsState]):
             result=dice.value,
         )
 
-        duo_ids = [167930454, 389582243]
+        duo_ids = list(_DUO_IDS)
         if user_id not in duo_ids:
             return
 
@@ -268,6 +269,12 @@ class DartsRule(Rule[DartsState]):
     async def _handle_stats_command(
         self, *, chat_id: int, message: telegram.Message, state: DartsState
     ) -> None:
+        user = cast(telegram.User, message.from_user)
+        if user.id not in _DUO_IDS:
+            _LOG.debug("Ignoring command for user %s", user.id)
+            await message.set_reaction("👎🏻")
+            return
+
         start_date = date(2025, 9, 26)
         today = datetime.now(tz=ZoneInfo("Europe/Berlin")).date()
         days_observed = (today - start_date).days + 1
