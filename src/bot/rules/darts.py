@@ -272,7 +272,7 @@ class DartsRule(Rule[DartsState]):
         user = cast(telegram.User, message.from_user)
         if user.id not in _DUO_IDS:
             _LOG.debug("Ignoring command for user %s", user.id)
-            await message.set_reaction("👎🏻")
+            await message.delete()
             return
 
         start_date = date(2025, 9, 26)
