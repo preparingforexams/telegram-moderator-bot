@@ -41,7 +41,7 @@ bs-nats-updater = { index = "internal" }
 bs-state = { index = "internal" }
 
 [build-system]
-requires = ["uv_build==0.8.*"]
+requires = ["uv_build==0.9.*"]
 build-backend = "uv_build"
 
 [tool.mypy]
