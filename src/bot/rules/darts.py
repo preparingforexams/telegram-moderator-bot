@@ -291,7 +291,7 @@ class DartsRule(Rule[DartsState]):
         response.write(f"Tage seit Start der Erfassung: {days_observed}\n")
         response.write(f"Tage mit Würfen von beiden: {days_with_stats}\n")
         response.write(f"🤝-Quote: {quota:.1f}%\n")
-        if quota < 50.0:
+        if quota < (1.0 / 6.0):
             response.write("\nL")
 
         await message.reply_text(response.getvalue())
