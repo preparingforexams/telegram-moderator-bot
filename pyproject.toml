@@ -19,7 +19,7 @@ dependencies = [
     "pyyaml ==6.0.3",
     "replicate==1.0.7",
     "sentry-sdk >=2.0.0, <3.0.0",
-    "uvloop ==0.21.*",
+    "uvloop ==0.22.*",
 ]
 
 [dependency-groups]
