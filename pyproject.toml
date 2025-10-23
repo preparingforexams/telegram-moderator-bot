@@ -11,7 +11,7 @@ classifiers = [
 
 dependencies = [
     "bs-config [dotenv] ==1.2.0",
-    "bs-nats-updater ==2.1.0",
+    "bs-nats-updater ==2.1.2",
     "bs-state [redis] ==2.3.*",
     "httpx ==0.28.*",
     "pydantic ==2.12.*",
