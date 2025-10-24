@@ -30,14 +30,14 @@ class RedisStateConfig:
 
     @classmethod
     def from_env(cls, env: Env) -> Self | None:
-        host = env.get_string("HOST")
+        host = env.get_string("host")
         if host is None:
             return None
 
         return cls(
             host=host,
-            username=env.get_string("USERNAME", required=True),
-            password=env.get_string("PASSWORD", required=True),
+            username=env.get_string("username", required=True),
+            password=env.get_string("password", required=True),
         )
 
 
@@ -47,14 +47,14 @@ class StateConfig:
 
     @classmethod
     def from_env(cls, env: Env) -> Self:
-        if env.get_bool("DEBUG_MODE", default=False):
+        if env.get_bool("debug-mode", default=False):
             _LOG.warning("Debug mode enabled")
             return cls(
                 redis=None,
             )
 
         return cls(
-            redis=RedisStateConfig.from_env(env.scoped("REDIS_")),
+            redis=RedisStateConfig.from_env(env / "redis"),
         )
 
 
@@ -71,11 +71,11 @@ class Config:
     @classmethod
     def from_env(cls, env: Env) -> Self:
         return cls(
-            app_version=env.get_string("APP_VERSION", default="dirty"),
-            config_dir=Path(env.get_string("CONFIG_DIR", default="config")),
-            nats=NatsConfig.from_env(env.scoped("NATS_"), is_optional=True),
-            rule_base_env=env.scoped("RULE_"),
-            sentry_dsn=env.get_string("SENTRY_DSN"),
-            state=StateConfig.from_env(env.scoped("STATE_")),
-            telegram_token=env.get_string("TELEGRAM_API_KEY", required=True),
+            app_version=env.get_string("app-version", default="dirty"),
+            config_dir=Path(env.get_string("config-dir", default="config")),
+            nats=NatsConfig.from_env(env / "nats", is_optional=True),
+            rule_base_env=env / "rule",
+            sentry_dsn=env.get_string("sentry-dsn"),
+            state=StateConfig.from_env(env / "state"),
+            telegram_token=env.get_string("telegram-api-key", required=True),
         )

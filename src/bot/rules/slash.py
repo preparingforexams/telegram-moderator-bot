@@ -13,7 +13,7 @@ _LOG = logging.getLogger(__name__)
 class SlashRule(Rule):
     @classmethod
     def name(cls) -> str:
-        return "command_spam"
+        return "command-spam"
 
     def __init__(self, config_dir: Path, secrets_env: Env):
         self.config = self._load_config(config_dir)

@@ -41,21 +41,17 @@ spec:
               value: /config
             - name: ADMIN_USER_ID
               value: "{{ .Values.telegram.adminUserId }}"
-            - name: STATE_KUBERNETES_NAME_PREFIX
-              value: {{ .Release.Name }}-state-
-            - name: STATE_KUBERNETES_NAMESPACE
-              value: {{ .Release.Namespace }}
-            - name: STATE_REDIS_USERNAME
+            - name: STATE__REDIS__USERNAME
               valueFrom:
                 secretKeyRef:
                   name: redis-credentials
                   key: username
-            - name: STATE_REDIS_PASSWORD
+            - name: STATE__REDIS__PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: redis-credentials
                   key: password
-            - name: STATE_REDIS_HOST
+            - name: STATE__REDIS__HOST
               value: "redis.prep-redis-state"
           envFrom:
             - secretRef:
