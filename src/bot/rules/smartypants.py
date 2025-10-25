@@ -1,7 +1,6 @@
 import logging
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Self
 
 import telegram
@@ -10,13 +9,12 @@ from replicate import Client as ReplicateClient
 from replicate.exceptions import ReplicateException
 from replicate.helpers import FileOutput
 
-from bot.config import load_config_dict_from_yaml
 from bot.rules import Rule
 
 _LOG = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class _Config:
     enabled_chat_ids: list[int]
     model_name: str
@@ -24,25 +22,17 @@ class _Config:
     replicate_token: str
 
     @classmethod
-    def from_dict(
+    def from_env(
         cls,
-        config_dict: dict,
-        secrets_env: Env,
+        env: Env,
     ) -> Self:
+        enabled_chat_ids = env.get_int_list("enabled-chats", default=[])
+        is_enabled = bool(enabled_chat_ids)
         return cls(
-            enabled_chat_ids=config_dict["enabledChats"],
-            model_name=config_dict["modelName"],
-            openai_token=secrets_env.get_string("OPENAI_TOKEN", required=True),
-            replicate_token=secrets_env.get_string("REPLICATE_TOKEN", required=True),
-        )
-
-    @classmethod
-    def disabled(cls) -> Self:
-        return cls(
-            enabled_chat_ids=[],
-            model_name="",
-            openai_token="",
-            replicate_token="",
+            enabled_chat_ids=enabled_chat_ids,
+            model_name=env.get_string("model-name", required=is_enabled) or "",
+            openai_token=env.get_string("openai-token", required=is_enabled) or "",
+            replicate_token=env.get_string("replica-token", required=is_enabled) or "",
         )
 
 
@@ -51,22 +41,16 @@ class SmartypantsRule(Rule[None]):
     def name(cls) -> str:
         return "smartypants"
 
-    def __init__(self, config_dir: Path, secrets_env: Env):
-        self.config = self._load_config(config_dir, secrets_env)
+    def __init__(self, env: Env) -> None:
+        self._config = self._load_config(env)
 
     @staticmethod
-    def _load_config(config_dir: Path, secret_envs: Env) -> _Config:
-        config_dict = load_config_dict_from_yaml(config_dir / "smartypants.yaml")
+    def _load_config(env: Env) -> _Config:
+        config = _Config.from_env(env)
+        if not config.enabled_chat_ids:
+            _LOG.warning("No chats configured")
 
-        if not config_dict:
-            _LOG.warning("Config is empty or missing")
-            return _Config.disabled()
-
-        try:
-            return _Config.from_dict(config_dict, secret_envs)
-        except (KeyError, ValueError) as e:
-            _LOG.warning("Invalid or incomplete config", exc_info=e)
-            return _Config.disabled()
+        return config
 
     def initial_state(self) -> None:
         pass
@@ -79,7 +63,7 @@ class SmartypantsRule(Rule[None]):
         is_edited: bool,
         state: None,
     ) -> None:
-        if chat_id not in self.config.enabled_chat_ids:
+        if chat_id not in self._config.enabled_chat_ids:
             _LOG.debug("Disabled in chat %d", chat_id)
             return
 
@@ -116,16 +100,16 @@ class SmartypantsRule(Rule[None]):
         message_id: int,
         prompt: str,
     ) -> None:
-        ai_client = ReplicateClient(self.config.replicate_token)
+        ai_client = ReplicateClient(self._config.replicate_token)
 
         _LOG.info("Generating image with prompt %s", prompt)
         try:
             ai_response = await ai_client.async_run(
-                self.config.model_name,
+                self._config.model_name,
                 input=dict(
                     prompt=prompt,
                     aspect_ratio="1:1",
-                    openai_api_key=self.config.openai_token,
+                    openai_api_key=self._config.openai_token,
                     moderation="low",
                     output_format="jpeg",
                 ),
