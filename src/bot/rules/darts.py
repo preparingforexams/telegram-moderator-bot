@@ -1,8 +1,8 @@
 import logging
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from io import StringIO
-from pathlib import Path
 from typing import Self, cast
 from zoneinfo import ZoneInfo
 
@@ -10,16 +10,15 @@ import telegram
 from bs_config import Env
 from pydantic import BaseModel
 
-from bot.config import load_config_dict_from_yaml
 from bot.rules.rule import Rule
 
 _DUO_IDS = frozenset({167930454, 389582243})
 _LOG = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class _ChatConfig:
-    emojis: list[str]
+    emojis: Sequence[str]
     cooldown: timedelta | None
 
     def is_cooled_down(self, last: datetime, now: datetime) -> bool:
@@ -35,37 +34,25 @@ class _ChatConfig:
             return local_last.day != local_now.day
 
     @classmethod
-    def from_dict(cls, config_dict: dict) -> Self:
-        emojis = config_dict.get("emojis", [])
-        cooldown_dict = config_dict.get("cooldown", None)
-        if cooldown_dict is None:
-            return cls(emojis, None)
-
-        if not cooldown_dict:
-            raise ValueError("Not cooldown specified")
-
-        cooldown = timedelta(
-            days=cooldown_dict.get("days", 0),
-            hours=cooldown_dict.get("hours", 0),
-            minutes=cooldown_dict.get("minutes", 0),
-            seconds=cooldown_dict.get("seconds", 0),
-        )
-
+    def from_env(cls, env: Env) -> Self:
         return cls(
-            emojis=emojis,
-            cooldown=cooldown,
+            emojis=env.get_string_list("emojis", default=[]),
+            cooldown=env.get_string(
+                "cooldown-seconds",
+                transform=lambda v: timedelta(seconds=int(v)),
+            ),
         )
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class _Config:
-    config_by_chat_id: dict[int, _ChatConfig]
+    config_by_chat_id: Mapping[int, _ChatConfig]
 
     @classmethod
-    def from_dict(cls, config_dict: dict) -> Self:
-        config_by_chat_id = {
-            key: _ChatConfig.from_dict(value) for key, value in config_dict.items()
-        }
+    def from_env(cls, env: Env) -> Self:
+        config_by_chat_id = {}
+        for chat_id in env.get_int_list("enabled-chats", default=[]):
+            config_by_chat_id[chat_id] = _ChatConfig.from_env(env / str(chat_id))
         return cls(
             config_by_chat_id=config_by_chat_id,
         )
@@ -135,18 +122,16 @@ class DartsRule(Rule[DartsState]):
     def name(cls) -> str:
         return "darts"
 
-    def __init__(self, config_dir: Path, secrets_env: Env):
-        self._config = self._load_config(config_dir)
+    def __init__(self, env: Env) -> None:
+        self._config = self._load_config(env)
 
     @staticmethod
-    def _load_config(config_dir: Path) -> _Config:
-        config_dict = load_config_dict_from_yaml(config_dir / "darts.yaml")
+    def _load_config(env: Env) -> _Config:
+        config = _Config.from_env(env)
+        if not config.config_by_chat_id:
+            _LOG.warning("No chats configured")
 
-        if not config_dict:
-            _LOG.warning("Config is empty or missing")
-            return _Config({})
-
-        return _Config.from_dict(config_dict)
+        return config
 
     def initial_state(self) -> DartsState:
         return DartsState()

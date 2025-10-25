@@ -1,6 +1,5 @@
 import logging
 import re
-from pathlib import Path
 
 import telegram
 from bs_config import Env
@@ -15,21 +14,8 @@ class SlashRule(Rule):
     def name(cls) -> str:
         return "command-spam"
 
-    def __init__(self, config_dir: Path, secrets_env: Env):
-        self.config = self._load_config(config_dir)
-
-    @staticmethod
-    def _load_config(config_dir: Path) -> set[int]:
-        file_path = config_dir / "slash.txt"
-
-        if not file_path.is_file():
-            _LOG.warning("No config found")
-            return set()
-
-        with file_path.open("r") as f:
-            lines = f.readlines()
-
-        return {int(line.strip()) for line in lines}
+    def __init__(self, env: Env) -> None:
+        self._enabled_chats = env.get_int_list("enabled-chats", default=[])
 
     def initial_state(self) -> None:
         pass
@@ -53,7 +39,7 @@ class SlashRule(Rule):
             await message.delete()
 
     def _is_enabled(self, chat_id: int) -> bool:
-        return chat_id in self.config
+        return chat_id in self._enabled_chats
 
     @staticmethod
     def _is_plain_command(text: str) -> bool:

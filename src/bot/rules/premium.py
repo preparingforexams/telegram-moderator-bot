@@ -1,20 +1,12 @@
 import logging
-from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 
 import telegram
 from bs_config import Env
 
-from bot.config import load_config_dict_from_yaml
 from bot.rules.rule import Rule
 
 _LOG = logging.getLogger(__name__)
-
-
-@dataclass
-class Config:
-    enabled_chats: list[int]
 
 
 class PremiumRule(Rule):
@@ -22,24 +14,8 @@ class PremiumRule(Rule):
     def name(cls) -> str:
         return "premium"
 
-    def __init__(self, config_dir: Path, secrets_env: Env):
-        self.config = self._load_config(config_dir)
-
-    @staticmethod
-    def _load_config(config_dir: Path) -> Config:
-        config_dict = load_config_dict_from_yaml(config_dir / "premium.yaml")
-
-        if not config_dict:
-            _LOG.warning("Config file is empty or missing.")
-            return Config(
-                enabled_chats=[],
-            )
-
-        return Config(
-            enabled_chats=[
-                int(chat_id) for chat_id in config_dict.get("enabledChats", [])
-            ],
-        )
+    def __init__(self, env: Env) -> None:
+        self._enabled_chats = env.get_int_list("enabled-chats", default=[])
 
     def initial_state(self) -> None:
         pass
@@ -52,7 +28,7 @@ class PremiumRule(Rule):
         is_edited: bool,
         state: None,
     ) -> None:
-        if chat_id not in self.config.enabled_chats:
+        if chat_id not in self._enabled_chats:
             _LOG.debug("Not enabled in %d", chat_id)
             return
 

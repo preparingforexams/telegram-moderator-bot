@@ -2,6 +2,7 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Self
+from warnings import deprecated
 
 import yaml
 from bs_config import Env
@@ -10,6 +11,7 @@ from bs_nats_updater import NatsConfig
 _LOG = logging.getLogger(__name__)
 
 
+@deprecated("Use env instead")
 def load_config_dict_from_yaml(config_file: Path) -> dict | None:
     if not config_file.is_file():
         return None
@@ -63,7 +65,6 @@ class Config:
     app_version: str
     config_dir: Path
     nats: NatsConfig | None
-    rule_base_env: Env
     sentry_dsn: str | None
     state: StateConfig
     telegram_token: str
@@ -74,7 +75,6 @@ class Config:
             app_version=env.get_string("app-version", default="dirty"),
             config_dir=Path(env.get_string("config-dir", default="config")),
             nats=NatsConfig.from_env(env / "nats", is_optional=True),
-            rule_base_env=env / "rule",
             sentry_dsn=env.get_string("sentry-dsn"),
             state=StateConfig.from_env(env / "state"),
             telegram_token=env.get_string("telegram-api-key", required=True),

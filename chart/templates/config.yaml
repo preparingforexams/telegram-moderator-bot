@@ -3,42 +3,49 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-config
 data:
-  dice.yaml: |
-    forwardTo: -1001587782443
-    allowedEmojis:
-      -1001725586482:
-        - 🎰
+  darts.toml: |
+    [rule.darts]
+    enabled-chats = [
+        133399998,
+        -1001604571340,
+        -1001725586482,
+    ]
 
-  lemons.yaml: |
-    enabledChats:
-      - -1001725586482
-      - -1001587782443
+    [rule.darts.133399998]
+    emojis = ["🎯"]
+    cooldown-seconds = "5"
 
-  slash.txt: |
-    133399998
-    -1001458632057
-    -1001473841450
+    [rule.darts.-1001604571340]
+    emojis = ["🎯"]
 
-  darts.yaml: |
-    133399998:
-      emojis:
-        - 🎯
-      cooldown:
-        seconds: 5
-    -1001604571340:
-      emojis:
-        - 🎯
-    -1001725586482:
-      emojis:
-        - 🎰
+    [rule.darts.-1001725586482]
+    emojis = ["🎰"]
 
-  premium.yaml: |
-    enabledChats:
-      - 133399998
-      - -1001649059583
+  lemons.toml: |
+    [rule.lemons]
+    enabled-chats = [
+        -1001725586482,
+        -1001587782443,
+    ]
 
-  smartypants.yaml: |
-    modelName: "openai/gpt-image-1"
-    enabledChats:
-      - 133399998
-      - -1002264342797
+  premium.toml: |
+    [rule.premium]
+    enabled-chats = [
+        -1001649059583,
+    ]
+
+  slash.toml: |
+    [rule.slash]
+    enabled-chats = [
+        133399998,
+        -1001458632057,
+        -1001473841450,
+    ]
+
+  smartypants.toml: |
+    [rule.smartypants]
+    model-name = "openai/gpt-image-1"
+    enabled-chats = [
+        133399998,
+        -1002264342797,
+    ]

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from bs_state import StateStorage
 
     from bot import rules
-    from bot.config import Config
+    from bot.config import StateConfig
 
 _LOG = logging.getLogger(__name__)
 
@@ -25,27 +25,26 @@ class RuleState[S: BaseModel]:
     async def load(
         cls,
         rule: rules.Rule[S | None],
-        config: Config,
+        config: StateConfig | None,
     ) -> RuleState[S] | None:
         storage = await _load_state_storage(config, rule)
         return cls(rule, storage)
 
 
 async def _load_state_storage[S: BaseModel](
-    config: Config,
+    config: StateConfig | None,
     rule: rules.Rule[S | None],
 ) -> StateStorage[S] | None:
     initial_state = rule.initial_state()
     if initial_state is None:
         return None
 
-    state_config = config.state
-    if state_config is None:
+    if config is None:
         _LOG.warning("Using in-memory state storage")
         from bs_state.implementation import memory_storage
 
         return await memory_storage.load(initial_state=initial_state)
-    elif redis_config := state_config.redis:
+    elif redis_config := config.redis:
         _LOG.info("Using Redis state storage")
         key = f"{redis_config.username}:rulestate:{rule.name()}"
 
