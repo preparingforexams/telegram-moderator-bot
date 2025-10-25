@@ -37,10 +37,7 @@ class _ChatConfig:
     def from_env(cls, env: Env) -> Self:
         return cls(
             emojis=env.get_string_list("emojis", default=[]),
-            cooldown=env.get_string(
-                "cooldown-seconds",
-                transform=lambda v: timedelta(seconds=int(v)),
-            ),
+            cooldown=env.get_duration("cooldown"),
         )
 
 

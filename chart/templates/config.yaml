@@ -13,7 +13,7 @@ data:
 
     [rule.darts.133399998]
     emojis = ["🎯"]
-    cooldown-seconds = "5"
+    cooldown.seconds = 5
 
     [rule.darts.-1001604571340]
     emojis = ["🎯"]
