@@ -32,7 +32,7 @@ class _Config:
             enabled_chat_ids=enabled_chat_ids,
             model_name=env.get_string("model-name", required=is_enabled) or "",
             openai_token=env.get_string("openai-token", required=is_enabled) or "",
-            replicate_token=env.get_string("replica-token", required=is_enabled) or "",
+            replicate_token=env.get_string("replicate-token", required=is_enabled) or "",
         )
 
 
