@@ -2,26 +2,11 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Self
-from warnings import deprecated
 
-import yaml
 from bs_config import Env
 from bs_nats_updater import NatsConfig
 
 _LOG = logging.getLogger(__name__)
-
-
-@deprecated("Use env instead")
-def load_config_dict_from_yaml(config_file: Path) -> dict | None:
-    if not config_file.is_file():
-        return None
-
-    with config_file.open("r", encoding="utf-8") as f:
-        config_dict = yaml.load(f, yaml.Loader)
-        if not config_dict:
-            return None
-
-    return config_dict
 
 
 @dataclass
