@@ -267,13 +267,13 @@ class DartsRule(Rule[DartsState]):
             await message.set_reaction("🤷🏻‍♂️")
             return
 
-        quota = stats.count_same * 100.0 / days_with_stats
+        quota = stats.count_same / days_with_stats
 
         response = StringIO()
         response.write(f"Tage seit Start der Erfassung: {days_observed}\n")
         response.write(f"Tage mit Würfen von beiden: {days_with_stats}\n")
-        response.write(f"🤝-Quote: {quota:.1f}%\n")
-        if quota < (100.0 / 6.0):
+        response.write(f"🤝-Quote: {quota * 100.0:.1f}%\n")
+        if quota < (1.0 / 6.0):
             response.write("\nL")
 
         await message.reply_text(response.getvalue())
