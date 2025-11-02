@@ -1,11 +1,9 @@
 import logging
-from typing import TYPE_CHECKING
+
+import telegram
+from bs_config import Env
 
 from bot.rules.rule import Rule
-
-if TYPE_CHECKING:
-    import telegram
-    from bs_config import Env
 
 _LOG = logging.getLogger(__name__)
 

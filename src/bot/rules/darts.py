@@ -1,19 +1,16 @@
 import logging
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from io import StringIO
-from typing import TYPE_CHECKING, Self, cast
+from typing import Self, cast
 from zoneinfo import ZoneInfo
 
 import telegram
+from bs_config import Env
 from pydantic import BaseModel
 
 from bot.rules.rule import Rule
-
-if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
-
-    from bs_config import Env
 
 _DUO_IDS = frozenset({167930454, 389582243})
 _LOG = logging.getLogger(__name__)

@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
-
-if TYPE_CHECKING:
-    from telegram import Message
+from telegram import Message
 
 
 class Rule[S: BaseModel | None](ABC):
