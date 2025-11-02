@@ -1,15 +1,17 @@
 import logging
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 import telegram
-from bs_config import Env
 from replicate import Client as ReplicateClient
 from replicate.exceptions import ReplicateException
 from replicate.helpers import FileOutput
 
 from bot.rules import Rule
+
+if TYPE_CHECKING:
+    from bs_config import Env
 
 _LOG = logging.getLogger(__name__)
 
