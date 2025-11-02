@@ -12,7 +12,7 @@ classifiers = [
 dependencies = [
     "bs-config [dotenv] ==3.4.0",
     "bs-nats-updater ==3.0.0",
-    "bs-state [redis] ==2.4.*",
+    "bs-state [redis] ==3.0.*",
     "httpx ==0.28.*",
     "pydantic ==2.12.*",
     "python-telegram-bot ==22.5",

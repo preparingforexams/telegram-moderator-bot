@@ -53,7 +53,7 @@ dev = [
 requires-dist = [
     { name = "bs-config", extras = ["dotenv"], specifier = "==3.4.0", index = "https://pypi.bjoernpetersen.net/simple" },
     { name = "bs-nats-updater", specifier = "==3.0.0", index = "https://pypi.bjoernpetersen.net/simple" },
-    { name = "bs-state", extras = ["redis"], specifier = "==2.4.*", index = "https://pypi.bjoernpetersen.net/simple" },
+    { name = "bs-state", extras = ["redis"], specifier = "==3.0.*", index = "https://pypi.bjoernpetersen.net/simple" },
     { name = "httpx", specifier = "==0.28.*" },
     { name = "pydantic", specifier = "==2.12.*" },
     { name = "python-telegram-bot", specifier = "==22.5" },
@@ -102,15 +102,15 @@ wheels = [
 
 [[package]]
 name = "bs-state"
-version = "2.4.0"
+version = "3.0.0"
 source = { registry = "https://pypi.bjoernpetersen.net/simple" }
 dependencies = [
     { name = "opentelemetry-api" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.4.0.tar.gz", hash = "sha256:a11c0bd96b41e4a18f1abd817861d7199e846cff629e09a141f112ff2ab1349a" }
+sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_state-3.0.0.tar.gz", hash = "sha256:3e2ea1c43007f30ae277ab16ae1883c49d5e8578fbb7ee5f20ac61dafb9347ce" }
 wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.4.0-py3-none-any.whl", hash = "sha256:e4496487bdf5728fec2311a4508791d0c502de320fe61e006bc8e850bb623fff" },
+    { url = "https://pypi.bjoernpetersen.net/packages/bs_state-3.0.0-py3-none-any.whl", hash = "sha256:d0086b8ad66ca8fb780991cb807c7889a2bb7895e3fc9e168e8bae8381d47139" },
 ]
 
 [package.optional-dependencies]
