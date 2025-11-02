@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import sentry_sdk
 import uvloop
@@ -10,6 +10,9 @@ from bot import rules
 from bot.config import Config, StateConfig
 from bot.rule_state import RuleState
 from bot.telegram_bot import TelegramBot
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _LOG = logging.getLogger("bot")
 
