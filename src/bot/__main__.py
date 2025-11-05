@@ -22,7 +22,6 @@ async def _init_rules(
         rules.LemonRule,
         rules.PremiumRule,
         rules.SlashRule,
-        rules.SmartypantsRule,
     ]
 
     initialized_rules = [

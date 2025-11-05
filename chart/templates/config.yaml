@@ -41,11 +41,3 @@ data:
         -1001458632057,
         -1001473841450,
     ]
-
-  smartypants.toml: |
-    [rule.smartypants]
-    model-name = "openai/gpt-image-1"
-    enabled-chats = [
-        133399998,
-        -1002264342797,
-    ]
