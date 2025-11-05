@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import signal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import telegram
 from bs_nats_updater import create_updater
@@ -12,8 +12,9 @@ from telegram.ext import (
     filters,
 )
 
-from bot.config import Config
-from bot.rule_state import RuleState
+if TYPE_CHECKING:
+    from bot.config import Config
+    from bot.rule_state import RuleState
 
 _LOG = logging.getLogger(__name__)
 
