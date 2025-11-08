@@ -50,6 +50,12 @@ plugins = ["pydantic.mypy"]
 init_forbid_extra = true
 init_typed = true
 
+[tool.pytest]
+strict = true
+addopts = [
+    "--import-mode=importlib",
+]
+
 [tool.ruff.lint]
 select = [
     "E4",
