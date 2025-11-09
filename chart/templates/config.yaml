@@ -8,7 +8,6 @@ data:
     enabled-chats = [
         133399998,
         -1001604571340,
-        -1001725586482,
     ]
 
     [rule.darts.133399998]
@@ -18,13 +17,9 @@ data:
     [rule.darts.-1001604571340]
     emojis = ["🎯"]
 
-    [rule.darts.-1001725586482]
-    emojis = ["🎰"]
-
   lemons.toml: |
     [rule.lemons]
     enabled-chats = [
-        -1001725586482,
         -1001587782443,
     ]
 
@@ -36,8 +31,4 @@ data:
 
   slash.toml: |
     [rule.slash]
-    enabled-chats = [
-        133399998,
-        -1001458632057,
-        -1001473841450,
-    ]
+    enabled-chats = []
