@@ -20,7 +20,7 @@ RUN useradd --system --uid 1000 --gid app --create-home --home-dir /app app
 USER 1000
 WORKDIR /app
 
-COPY [ "uv.lock", "pyproject.toml", "./" ]
+COPY [ "LICENSE", "uv.lock", "pyproject.toml", "./" ]
 
 RUN uv sync --locked --no-install-workspace --all-extras --no-dev
 
