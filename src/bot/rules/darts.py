@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 
 import telegram
 from pydantic import BaseModel
+from telegram.constants import ReactionEmoji
 
 from bot.rules.rule import Rule
 
@@ -192,7 +193,7 @@ class DartsRule(Rule[DartsState]):
                 is_command = self.is_command(command_name="stats", message=text)
             except ValueError as e:
                 _LOG.info("Received invalid command: %s", e)
-                await message.set_reaction("🤷🏻‍♂️")
+                await message.set_reaction(ReactionEmoji.SHRUG)
             else:
                 if is_command:
                     await self._handle_stats_command(
@@ -267,7 +268,7 @@ class DartsRule(Rule[DartsState]):
         stats = state.get_duo_stats(chat_id=chat_id)
         days_with_stats = stats.count_same + stats.count_different
         if days_with_stats == 0:
-            await message.set_reaction("🤷🏻‍♂️")
+            await message.set_reaction(ReactionEmoji.SHRUG)
             return
 
         quota = stats.count_same / days_with_stats
